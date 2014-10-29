@@ -1,6 +1,12 @@
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -36,14 +42,22 @@ public class ClientWebsocketHandler {
 		System.out.println("Got connect: %s%n"+session);
 		this.session = session;
 		try{
-//			User u;
-//			ObjectWrapper data = new ObjectWrapper(new String("connect"), User);
-//			session.getRemote().sendBytes(data);
+			User u = new User();
+			ObjectWrapper data = new ObjectWrapper("connect", u);
+
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//			ObjectOutputStream oos = new ObjectOutputStream(bos);
+//		    oos.writeObject(data);
+//		    oos.flush(); 
+//		    oos.close();
+//			ByteBuffer buff = getBuffer(data);
+			session.getRemote().sendBytes(data.getBuffer());
+			
 			Future<Void> fut;
 //			fut = session.getRemote().sendBytesByFuture(data)
-			fut = session.getRemote().sendStringByFuture("Gevorg");
+			fut = session.getRemote().sendStringByFuture("first message sent by client");
 			fut.get(2, TimeUnit.SECONDS);
-			fut = session.getRemote().sendStringByFuture("thanks");
+			fut = session.getRemote().sendStringByFuture("second message sent by client");
 			fut.get(2, TimeUnit.SECONDS);
 //			session.close(StatusCode.NORMAL, "done");
 		}catch(Throwable t){
@@ -55,4 +69,5 @@ public class ClientWebsocketHandler {
     public void onMessage(String msg) {
         System.out.printf("Got msg: %s%n", msg);
     }
+
 }

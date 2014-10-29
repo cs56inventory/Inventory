@@ -1,4 +1,7 @@
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Future;
@@ -56,6 +59,12 @@ public class ServerWebSocketHandler {
 	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int lenght){
 //		ServerApp.userMap.put(key, value);
+		Object receivedObject = receivedMessage(data);
+        if(receivedObject instanceof ObjectWrapper){
+        	String _message = (String)((ObjectWrapper)receivedObject).getKey();
+        	System.out.println("New Message:  "+_message);
+        }
+		System.out.println("Bytes:  "+data);
 	}
 	
 	@OnWebSocketMessage
@@ -63,4 +72,26 @@ public class ServerWebSocketHandler {
 		System.out.println("Message:  "+message);
 		
 	}
+	
+	public Object receivedMessage(byte[] byts) {
+     
+        ObjectInputStream istream = null;
+        Object obj = null;
+        try {
+            istream = new ObjectInputStream(new ByteArrayInputStream(byts));
+            obj = istream.readObject();
+     
+            if(obj instanceof ObjectWrapper){
+            	String _message = (String)((ObjectWrapper)obj).getKey();
+            	System.out.println("New Message:  "+_message);
+            }
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        catch(ClassNotFoundException e){
+            e.printStackTrace();
+        }
+		return obj;
+    }
 }
