@@ -10,7 +10,7 @@ public class ClientApp {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		WebSocketClient client = new WebSocketClient();
-		ConnectionHandler socket = new ConnectionHandler();
+		ClientWebsocketHandler socket = new ClientWebsocketHandler();
 		try{
 			client.start();
 			URI serverUri = new URI("ws://localhost:8080/");

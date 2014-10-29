@@ -11,12 +11,12 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 
 @WebSocket
-public class ConnectionHandler {
+public class ClientWebsocketHandler {
 	private final CountDownLatch closeLatch;
 	  @SuppressWarnings("unused")
 	    private Session session;
 	  
-	public ConnectionHandler(){
+	public ClientWebsocketHandler(){
 		this.closeLatch = new CountDownLatch(1);
 	
 	}
@@ -36,15 +36,15 @@ public class ConnectionHandler {
 		System.out.println("Got connect: %s%n"+session);
 		this.session = session;
 		try{
-			User u;
-			ObjectWrapper data = new ObjectWrapper(new String("connect"), User);
-			session.getRemote().sendBytes(data);
-//			Future<Void> fut;
+//			User u;
+//			ObjectWrapper data = new ObjectWrapper(new String("connect"), User);
+//			session.getRemote().sendBytes(data);
+			Future<Void> fut;
 //			fut = session.getRemote().sendBytesByFuture(data)
-//			fut = session.getRemote().sendStringByFuture("Gevorg");
-//			fut.get(2, TimeUnit.SECONDS);
-//			fut = session.getRemote().sendStringByFuture("thanks");
-//			fut.get(2, TimeUnit.SECONDS);
+			fut = session.getRemote().sendStringByFuture("Gevorg");
+			fut.get(2, TimeUnit.SECONDS);
+			fut = session.getRemote().sendStringByFuture("thanks");
+			fut.get(2, TimeUnit.SECONDS);
 //			session.close(StatusCode.NORMAL, "done");
 		}catch(Throwable t){
 			t.printStackTrace();

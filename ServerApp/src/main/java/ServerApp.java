@@ -41,7 +41,7 @@ public class ServerApp {
 		          System.out.println("return nothing");
 		          return null;
 		        }
-		        return new MyWebSocketHandler();
+		        return new ServerWebSocketHandler();
 		      }
 
 		    });

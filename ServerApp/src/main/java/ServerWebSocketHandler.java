@@ -13,11 +13,11 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 
 @WebSocket
-public class MyWebSocketHandler {
+public class ServerWebSocketHandler {
 	
 	private Session outbound;
 	
-	public MyWebSocketHandler(){
+	public ServerWebSocketHandler(){
 		super();
 		System.out.println("init: code ");
 	}
@@ -55,7 +55,7 @@ public class MyWebSocketHandler {
 	
 	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int lenght){
-		ServerApp.userMap.put(key, value);
+//		ServerApp.userMap.put(key, value);
 	}
 	
 	@OnWebSocketMessage
