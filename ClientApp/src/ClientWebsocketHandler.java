@@ -42,6 +42,7 @@ public class ClientWebsocketHandler {
 		System.out.println("Got connect: %s%n"+session);
 		this.session = session;
 		try{
+			new ClientInterface();
 			User u = new User();
 			ObjectWrapper data = new ObjectWrapper("connect", u);
 
