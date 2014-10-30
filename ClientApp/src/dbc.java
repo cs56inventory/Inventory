@@ -8,65 +8,59 @@
 import java.sql.*;
 
 public class dbc {
-	//the database connection driver
+	// the database connection driver
 	String driver = "net.sourceforge.jtds.jdbc.Driver";
-	
-	//the SQL query statement
+
+	// the SQL query statement
 	String query = "";
-	
+
 	Connection connection;
-	
-	//database connection string
-	String conn="jdbc:jtds:sqlserver://MTTVNS-HP:14433/imdb;instance=SQLEXPRESS12;TDS=7.0";
-	
+
+	// database connection string
+	String conn = "jdbc:jtds:sqlserver://MTTVNS-HP:14433/imdb;instance=SQLEXPRESS12;TDS=7.0";
+
 	ResultSet resultSet;
 	ResultSetMetaData rsmd;
-	
-	
-	//constructor
-	dbc() throws SQLException, ClassNotFoundException{
-		//load driver
+
+	// constructor
+	dbc() throws SQLException, ClassNotFoundException {
+		// load driver
 		Class.forName(driver);
-		//connect
+		// connect
 		connection = DriverManager.getConnection(conn);
-	}//end dbc constructor
-	
-	
-	//set the query string
-	public void setQuery(String q){
+	}// end dbc constructor
+
+	// set the query string
+	public void setQuery(String q) {
 		this.query = q;
 	}
-	
-	
-	//get the ResultSet
-	public ResultSet getRs() throws SQLException{
-		//create sql statement object
+
+	// get the ResultSet
+	public ResultSet getRs() throws SQLException {
+		// create sql statement object
 		Statement statement = connection.createStatement();
-		
-		//create resultSet and execute query
+
+		// create resultSet and execute query
 		resultSet = statement.executeQuery(query);
-		
+
 		return this.resultSet;
 	}
-	
-	
-	//get the ResultSetMetaData
-	public ResultSetMetaData getRsmd() throws SQLException{
+
+	// get the ResultSetMetaData
+	public ResultSetMetaData getRsmd() throws SQLException {
 		rsmd = resultSet.getMetaData();
 		return this.rsmd;
 	}
-	
-	
-	//get the number of columns in the result set
-	public int getNumCols() throws SQLException{
+
+	// get the number of columns in the result set
+	public int getNumCols() throws SQLException {
 		int numCols = rsmd.getColumnCount();
 		return numCols;
 	}
-	
-	
-	//close the connection
-	public void closeConn() throws SQLException{
+
+	// close the connection
+	public void closeConn() throws SQLException {
 		connection.close();
 	}
 
-}//end class
+}// end class
