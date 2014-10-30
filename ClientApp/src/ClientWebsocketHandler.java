@@ -46,14 +46,14 @@ public class ClientWebsocketHandler {
 			new ClientInterface();
 			User u = new User();
 			ObjectWrapper data = new ObjectWrapper("connect", u);
-
+			session.getRemote().sendBytes(data.getBuffer());
 			// ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			// ObjectOutputStream oos = new ObjectOutputStream(bos);
 			// oos.writeObject(data);
 			// oos.flush();
 			// oos.close();
 			// ByteBuffer buff = getBuffer(data);
-			session.getRemote().sendBytes(data.getBuffer());
+			
 
 			Future<Void> fut;
 			// fut = session.getRemote().sendBytesByFuture(data)
