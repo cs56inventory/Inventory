@@ -4,7 +4,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.sql.*;
-//import org.eclipse.wb.swing.FocusTraversalOnArray;
+import org.eclipse.wb.swing.FocusTraversalOnArray;
 
 public class ClientInterface extends JFrame {
 
@@ -443,6 +443,6 @@ public class ClientInterface extends JFrame {
 		lblTable.setBounds(182, 104, 194, 14);
 		
 		contentPane.add(lblTable);
-//		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{txtEmail, txtPassword, btnLogin, btnLogout, scrollPane, lblStoreInterface, lblPassword, lblLoginStatus, lblEmail, table, lblTable, btnPlaceOrder, btnViewProducts, btnInStock, btnViewStores, btnViewDistributors, btnTrackOrder}));
+		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{txtEmail, txtPassword, btnLogin, btnLogout, scrollPane, lblStoreInterface, lblPassword, lblLoginStatus, lblEmail, table, lblTable, btnPlaceOrder, btnViewProducts, btnInStock, btnViewStores, btnViewDistributors, btnTrackOrder}));
 	}//end Init GUI	
 }//end JFrame class
