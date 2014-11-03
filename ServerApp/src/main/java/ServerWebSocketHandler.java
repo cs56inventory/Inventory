@@ -59,10 +59,29 @@ public class ServerWebSocketHandler {
 	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int lenght){
 //		ServerApp.userMap.put(key, value);
-		Object receivedObject = receivedMessage(data);
+		Object receivedObject = unwrapReceivedMessage(data);
         if(receivedObject instanceof ObjectWrapper){
-        	String _message = (String)((ObjectWrapper)receivedObject).getKey();
+        	String _message = (String)(((ObjectWrapper)receivedObject).getKey());
         	System.out.println("New Message:  "+_message);
+        	switch(_message){
+        	case "login":
+        			if( ( ((ObjectWrapper) receivedObject).getObj() ) instanceof User){
+        				User u = (User)( ((ObjectWrapper) receivedObject).getObj() );
+        				if(u.checkLogin()){
+        					//return user products, orders
+        				}
+        				else{
+        					try {
+										outbound.getRemote().sendString("login_failed");
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+        				};
+        			};
+        		break;
+        	
+        	}
         }
 		System.out.println("Bytes:  "+data);
 	}
@@ -73,7 +92,7 @@ public class ServerWebSocketHandler {
 		
 	}
 	
-	public Object receivedMessage(byte[] byts) {
+	public Object unwrapReceivedMessage(byte[] byts) {
      
         ObjectInputStream istream = null;
         Object obj = null;

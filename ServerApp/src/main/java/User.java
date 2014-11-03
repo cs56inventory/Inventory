@@ -1,8 +1,17 @@
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+
+//import DAL.userMap;
 
 
 public class User implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int user_Id;
 	private String user_first_name;
 	private String user_last_name;
@@ -25,6 +34,27 @@ public class User implements Serializable {
 		this.user_updated_at = user_updated_at;
 		this.user_status_id = user_status_id;
 	}
+	public User(ResultSet rs){
+	
+		try {
+			if (rs.next()) {
+
+				this.setUser_Id(rs.getInt(DbMap.User.user_id));
+				this.setUser_first_name(rs.getString(DbMap.User.first_name));
+				this.setUser_last_name(rs.getString(DbMap.User.last_name));
+				this.setUser_email(rs.getString(DbMap.User.email));
+				this.setUser_password(rs.getString(DbMap.User.password));
+				this.setUser_created_at(rs.getInt(DbMap.User.created_at));
+				this.setUser_updated_at(rs.getInt(DbMap.User.updated_at));
+				this.setUser_status_id(rs.getInt(DbMap.User.status_id));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}// end while
+	
 	public int getUser_Id() {
 		return user_Id;
 	}
@@ -74,4 +104,21 @@ public class User implements Serializable {
 		this.user_status_id = user_status_id;
 	}
 	
+	public LinkedHashMap<String, String> getDbMappedValues(){
+		LinkedHashMap<String, String> userTable = new LinkedHashMap<String, String>();
+		userTable.put(DbMap.User.user_id, new Integer(this.getUser_Id()).toString());
+		userTable.put(DbMap.User.first_name, this.getUser_first_name());
+		userTable.put(DbMap.User.last_name, this.getUser_last_name());
+		userTable.put(DbMap.User.email, this.getUser_email());
+		userTable.put(DbMap.User.password, this.getUser_password());
+		userTable.put(DbMap.User.created_at, new Integer(this.getUser_created_at()).toString());
+		userTable.put(DbMap.User.updated_at, new Integer(this.getUser_updated_at()).toString());
+		userTable.put(DbMap.User.status_id, new Integer(this.getUser_status_id()).toString());
+		
+		return userTable;
+	}
+	public boolean checkLogin(){
+		
+		return false;
+	}
 }

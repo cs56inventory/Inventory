@@ -17,17 +17,23 @@ public class dbc {
 	Connection connection;
 
 	// database connection string
-	String conn = "jdbc:jtds:sqlserver://MTTVNS-HP:14433/imdb;instance=SQLEXPRESS12;TDS=7.0";
-
+//	String conn = "jdbc:jtds:sqlserver://MTTVNS-HP:14433/imdb;instance=SQLEXPRESS12;TDS=7.0";
+	String conn = "jdbc:jtds:sqlserver://ASUS:1433/imdb;instance=SQLEXPRESS;";
 	ResultSet resultSet;
 	ResultSetMetaData rsmd;
 
 	// constructor
 	dbc() throws SQLException, ClassNotFoundException {
-		// load driver
-		Class.forName(driver);
-		// connect
-		connection = DriverManager.getConnection(conn);
+		try{
+			// load driver
+			Class.forName(driver);
+			// connect
+			connection = DriverManager.getConnection(conn);
+		}
+		catch (Exception ex){
+			ex.printStackTrace();
+		}
+
 	}// end dbc constructor
 
 	// set the query string

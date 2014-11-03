@@ -70,7 +70,7 @@ public class ClientWebsocketHandler {
 	}
 	public void onMessage(byte[] data, int offset, int lenght){
 //		ServerApp.userMap.put(key, value);
-		Object receivedObject = receivedMessage(data);
+		Object receivedObject = unwrapReceivedMessage(data);
         if(receivedObject instanceof ObjectWrapper){
         	String _message = (String)((ObjectWrapper)receivedObject).getKey();
         	System.out.println("New Message:  "+_message);
@@ -81,7 +81,7 @@ public class ClientWebsocketHandler {
 	public void onMessage(String msg) {
 		System.out.printf("Got msg: %s%n", msg);
 	}
-	public Object receivedMessage(byte[] byts) {
+	public Object unwrapReceivedMessage(byte[] byts) {
 	     
         ObjectInputStream istream = null;
         Object obj = null;

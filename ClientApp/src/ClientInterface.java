@@ -117,6 +117,7 @@ public class ClientInterface extends JFrame {
 							users[i] = rs.getObject(i + 1);
 						}
 						userID = ((int) users[0]);
+						System.out.println(userID);
 					}// end while
 
 					// if no results or more than 1 result, login fails; reset
