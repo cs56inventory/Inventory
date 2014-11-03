@@ -1,1 +1,2 @@
-/ServerApp/target/classes/sqlserver.properties
+*~
+*.properties
