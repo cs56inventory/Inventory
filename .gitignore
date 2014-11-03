@@ -1,1 +1,2 @@
 *.properties
+ServerApp/src/main/resources/sqlserver.properties
