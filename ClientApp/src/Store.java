@@ -22,10 +22,10 @@ public class Store implements Serializable{
 //	public Store(int store_id){
 //		this.setProperties();
 //	}
-	public Store(HashMap<String, String> row){
-
-		this.setProperties(row);
-	}
+//	public Store(HashMap<String, String> row){
+//
+//		this.setProperties(row);
+//	}
 	
 	public Store(int store_id,String store_name,String store_street_address,String store_city,String store_state,String store_zip_code,String store_phone_number,int store_status_id){
 		
@@ -112,29 +112,29 @@ public class Store implements Serializable{
 //		this.setProperties(qry.getResults().get(0));
 //	}
 	
-	private void setProperties(HashMap<String, String> row){
-		this.setStore_id(new Integer(row.get(DbMap.Store.store_id)));
-		this.setStore_name(row.get(DbMap.Store.name));
-		this.setStore_street_address(row.get(DbMap.Store.street_address));
-		this.setStore_city(row.get(DbMap.Store.city));
-		this.setStore_state(row.get(DbMap.Store.state));
-		this.setStore_zip_code(row.get(DbMap.Store.zip_code));
-		this.setStore_phone_number(row.get(DbMap.Store.phone_number));
-		this.setStore_status_id(new Integer(row.get(DbMap.Store.status_id)));
-	}
-	
-	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> stoeTable = new HashMap<String, String>();
-		stoeTable.put(DbMap.Store.store_id, new Integer(this.getStore_id()).toString());
-		stoeTable.put(DbMap.Store.name, this.getStore_name());
-		stoeTable.put(DbMap.Store.street_address, this.getStore_street_address());
-		stoeTable.put(DbMap.Store.city, this.getStore_city());
-		stoeTable.put(DbMap.Store.state, this.getStore_state());
-		stoeTable.put(DbMap.Store.zip_code, this.getStore_zip_code());
-		stoeTable.put(DbMap.Store.phone_number, this.getStore_name());
-		stoeTable.put(DbMap.Store.status_id, new Integer(this.getStore_status_id()).toString());
-		
-		return stoeTable;
-	}
+//	private void setProperties(HashMap<String, String> row){
+//		this.setStore_id(new Integer(row.get(DbMap.Store.store_id)));
+//		this.setStore_name(row.get(DbMap.Store.name));
+//		this.setStore_street_address(row.get(DbMap.Store.street_address));
+//		this.setStore_city(row.get(DbMap.Store.city));
+//		this.setStore_state(row.get(DbMap.Store.state));
+//		this.setStore_zip_code(row.get(DbMap.Store.zip_code));
+//		this.setStore_phone_number(row.get(DbMap.Store.phone_number));
+//		this.setStore_status_id(new Integer(row.get(DbMap.Store.status_id)));
+//	}
+//	
+//	public HashMap<String, String> getDbMappedValues(){
+//		HashMap<String, String> stoeTable = new HashMap<String, String>();
+//		stoeTable.put(DbMap.Store.store_id, new Integer(this.getStore_id()).toString());
+//		stoeTable.put(DbMap.Store.name, this.getStore_name());
+//		stoeTable.put(DbMap.Store.street_address, this.getStore_street_address());
+//		stoeTable.put(DbMap.Store.city, this.getStore_city());
+//		stoeTable.put(DbMap.Store.state, this.getStore_state());
+//		stoeTable.put(DbMap.Store.zip_code, this.getStore_zip_code());
+//		stoeTable.put(DbMap.Store.phone_number, this.getStore_name());
+//		stoeTable.put(DbMap.Store.status_id, new Integer(this.getStore_status_id()).toString());
+//		
+//		return stoeTable;
+//	}
 	
 }

@@ -14,10 +14,10 @@ public class Product implements Serializable{
 	public Product(){
 		
 	}
-	public Product(HashMap<String, String> row){
-
-		this.setProperties(row);
-	}
+//	public Product(HashMap<String, String> row){
+//
+//		this.setProperties(row);
+//	}
 
 	public Product(int product_upc, String product_name, String product_description){
 		this.product_upc = product_upc;
@@ -49,19 +49,19 @@ public class Product implements Serializable{
 		this.product_description = product_description;
 	}
 	
-	private void setProperties(HashMap<String, String> row) {
-
-		this.setProduct_upc( new Integer(row.get(DbMap.Product.upc)) );
-		this.setProduct_name( row.get(DbMap.Product.name) );
-		this.setProduct_description( row.get(DbMap.Product.description) );
-	}
-	
-	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> product = new HashMap<String, String>();
-		product.put(DbMap.Product.upc, new Integer(this.getProduct_upc()).toString());
-		product.put(DbMap.Product.name, this.getProduct_name());
-		product.put(DbMap.Product.description, this.getProduct_description());
-		
-		return product;
-	}
+//	private void setProperties(HashMap<String, String> row) {
+//
+//		this.setProduct_upc( new Integer(row.get(DbMap.Product.upc)) );
+//		this.setProduct_name( row.get(DbMap.Product.name) );
+//		this.setProduct_description( row.get(DbMap.Product.description) );
+//	}
+//	
+//	public HashMap<String, String> getDbMappedValues(){
+//		HashMap<String, String> product = new HashMap<String, String>();
+//		product.put(DbMap.Product.upc, new Integer(this.getProduct_upc()).toString());
+//		product.put(DbMap.Product.name, this.getProduct_name());
+//		product.put(DbMap.Product.description, this.getProduct_description());
+//		
+//		return product;
+//	}
 }

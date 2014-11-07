@@ -19,7 +19,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 
 public class ServerApp {
-	public static final LinkedHashMap<String, Object> userMap = new LinkedHashMap<String, Object>();
+	public static final LinkedHashMap<Integer, Object> userMap = new LinkedHashMap<Integer, Object>();
 	public static void main(String[] args) throws Exception {
 
 		Server server = new Server(8080);	

@@ -1,10 +1,12 @@
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class User implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3432841883765302285L;
 	private int user_Id;
 	private String user_first_name;
 	private String user_last_name;
@@ -109,29 +111,30 @@ public class User implements Serializable {
 		this.setUser_status_id(new Integer(row.get(DbMap.User.status_id)));
 	}
 	
-	public LinkedHashMap<String, String> getDbMappedValues(){
-		LinkedHashMap<String, String> userTable = new LinkedHashMap<String, String>();
-		userTable.put(DbMap.User.user_id, new Integer(this.getUser_Id()).toString());
-		userTable.put(DbMap.User.first_name, this.getUser_first_name());
-		userTable.put(DbMap.User.last_name, this.getUser_last_name());
-		userTable.put(DbMap.User.email, this.getUser_email());
-		userTable.put(DbMap.User.password, this.getUser_password());
-		userTable.put(DbMap.User.created_at, new Integer(this.getUser_created_at()).toString());
-		userTable.put(DbMap.User.updated_at, new Integer(this.getUser_updated_at()).toString());
-		userTable.put(DbMap.User.status_id, new Integer(this.getUser_status_id()).toString());
+	public HashMap<String, String> getDbMappedValues(){
+		HashMap<String, String> userRow = new HashMap<String, String>();
+		userRow.put(DbMap.User.user_id, new Integer(this.getUser_Id()).toString());
+		userRow.put(DbMap.User.first_name, this.getUser_first_name());
+		userRow.put(DbMap.User.last_name, this.getUser_last_name());
+		userRow.put(DbMap.User.email, this.getUser_email());
+		userRow.put(DbMap.User.password, this.getUser_password());
+		userRow.put(DbMap.User.created_at, new Integer(this.getUser_created_at()).toString());
+		userRow.put(DbMap.User.updated_at, new Integer(this.getUser_updated_at()).toString());
+		userRow.put(DbMap.User.status_id, new Integer(this.getUser_status_id()).toString());
 		
-		return userTable;
+		return userRow;
 	}
-	public boolean isUser(){
-		String q = "SELECT * FROM "+DbMap.User.table_name+" WHERE "+DbMap.User.email+"=? AND "+DbMap.User.password+"= ?";
-		ArrayList <String> parameters = new ArrayList<String>();
-		parameters.add(this.getUser_email());
-		parameters.add(this.getUser_password());
-		DAL qry = new DAL(q, parameters);
-		this.setProperties(qry.getResults().get(0));
-		if(this.getUser_Id()!=0){
-			return true;
-		}
-		return false;
-	}
+	
+//	public boolean isUser(){
+//		String q = "SELECT * FROM "+DbMap.User.table_name+" WHERE "+DbMap.User.email+"=? AND "+DbMap.User.password+"= ?";
+//		ArrayList <String> parameters = new ArrayList<String>();
+//		parameters.add(this.getUser_email());
+//		parameters.add(this.getUser_password());
+//		DAL qry = new DAL(q, parameters);
+//		this.setProperties(qry.getResults().get(0));
+//		if(this.getUser_Id()!=0){
+//			return true;
+//		}
+//		return false;
+//	}
 }

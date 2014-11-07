@@ -10,6 +10,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 public class DAL {
@@ -22,9 +23,11 @@ public class DAL {
 		private ResultSet resultSet;
 		private ResultSetMetaData rsmd;
 		private int numCols = 0;
-		private ArrayList<HashMap<String, String>> results;
+		private String query; 
+		private ArrayList<String> parameters;
+		private ArrayList<LinkedHashMap<String, String>> results;
 		// constructor
-		DAL(String q) {
+		DAL() {
     	String filePathAndName =  "sqlserver.properties";
 			try{
 				final Properties properties = new Properties();
@@ -38,9 +41,6 @@ public class DAL {
 				// load driver
 				Class.forName(driver);
 				// connect
-				connection = DriverManager.getConnection(conn);
-				this.preparedStatement = connection.prepareStatement(q);
-				this.executeQry();
 			}
 		  catch (FileNotFoundException fnfEx)
 		  {
@@ -54,47 +54,18 @@ public class DAL {
 			catch (Exception ex){
 				ex.printStackTrace();
 			}
-		}
-		
-		DAL(String q, ArrayList<String> parameters) {
-    	String filePathAndName =  "sqlserver.properties";
-			try{
-				final Properties properties = new Properties();
-				// get sql server connection url from properties file
-				ClassLoader loader = Thread.currentThread().getContextClassLoader();
-				InputStream resourceStream = loader.getResourceAsStream(filePathAndName);
-					properties.load(resourceStream);
-					resourceStream.close();
-				driver = properties.getProperty("db_driver");
-				conn = properties.getProperty("db_url");
-				// load driver
-				Class.forName(driver);
-				// connect
-				connection = DriverManager.getConnection(conn);
-				this.preparedStatement = connection.prepareStatement(q);
-				for(int i=0;i<=parameters.size();i++){
-					this.preparedStatement.setString(i+1, parameters.get(i));
-				}
-				this.executeQry();
-			}
-		  catch (FileNotFoundException fnfEx)
-		  {
-		     System.err.println("Could not read properties from file " + filePathAndName);
-		  }
-		  catch (IOException ioEx)
-		  {
-		     System.err.println(
-		        "IOException encountered while reading from " + filePathAndName);
-		  }
-			catch (Exception ex){
-				ex.printStackTrace();
-			}
-
 		}
 		
 		private void executeQry(){
 
 			try {
+				connection = DriverManager.getConnection(conn);
+				this.preparedStatement = connection.prepareStatement(this.query);
+				if(!parameters.isEmpty()){
+					for(int i=0;i<parameters.size();i++){
+						this.preparedStatement.setString(i+1, parameters.get(i));
+					}
+				}
 				this.resultSet = this.preparedStatement.executeQuery();
 				this.rsmd = resultSet.getMetaData();
 				this.numCols = rsmd.getColumnCount();
@@ -122,12 +93,13 @@ public class DAL {
 //		  	 this.resultSet.absolute(currentRow);
 //		   }
 			
-			this.results = new ArrayList<HashMap<String, String>>();
+			this.results = new ArrayList<LinkedHashMap<String, String>>();
 		  try {
 				while (this.resultSet.next()){
-				   HashMap<String, String> row = new HashMap<String, String>(this.numCols);
-				   for(int i=1; i<=this.numCols; ++i){           
-				    row.put(rsmd.getColumnName(i),this.resultSet.getString(i));
+					LinkedHashMap<String, String> row = new LinkedHashMap<String, String>(this.numCols);
+				   for(int i=1; i<=this.numCols; ++i){ 
+				  	 String key = "["+rsmd.getSchemaName(i)+"].["+rsmd.getTableName(i)+"].["+rsmd.getColumnName(i)+"]";
+				  	 row.put(key,this.resultSet.getString(i));
 				   }
 				   this.results.add(row);
 				}
@@ -137,10 +109,18 @@ public class DAL {
 			}
 		}
 
-		public ArrayList<HashMap<String, String>> getResults(){
+		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
+			this.query=q;
+			this.executeQry();
 			return this.results;
 		}
 		
+		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q, ArrayList<String> parameters){
+			this.query=q;
+			this.parameters=parameters;
+			this.executeQry();
+			return this.results;
+		}
 		// get the ResultSetMetaData
 		public ResultSetMetaData getRsmd(){
 			return this.rsmd;
