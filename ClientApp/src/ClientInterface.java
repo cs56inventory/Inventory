@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,6 +21,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 public class ClientInterface extends JFrame {
+	private ClientApp app;
+	private ClientWebsocketHandler socket;
+	
 	private JPanel loginPane;
 	private JPanel contentPane;
 	private final JLabel lblEmail = new JLabel("Email:");
@@ -70,7 +74,7 @@ public class ClientInterface extends JFrame {
 //		});
 //	}//end main
 
-	public ClientInterface() {
+	public ClientInterface(ClientApp clientApp) {
 		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		txtPassword.setBounds(343, 182, 119, 20);
 		
@@ -80,6 +84,8 @@ public class ClientInterface extends JFrame {
 		
 		txtEmail.setColumns(10);
 		initGUI();
+		this.app = clientApp;
+		this.socket = app.getSocket();
 	}
 	
 	private void initGUI() {
@@ -94,7 +100,7 @@ public class ClientInterface extends JFrame {
 		
 		//end program when user exits
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		//dimensions of outer jframe
 		setBounds(100, 100, 818, 512);
 		
@@ -150,6 +156,7 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
+
 					table.setModel(model);
 					lblTable.setText("Viewing all stores:");
 				
@@ -438,6 +445,8 @@ public class ClientInterface extends JFrame {
 				btnLogin.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent arg0) {
+						
+						
 						//load driver
 						try {
 							

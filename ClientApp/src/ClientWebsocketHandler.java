@@ -19,18 +19,20 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 @WebSocket
 public class ClientWebsocketHandler {
+	private ClientInterface clientInterface;
 	private final CountDownLatch closeLatch;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
 	@SuppressWarnings("unused")
 	
 
-	public ClientWebsocketHandler() {
+	public ClientWebsocketHandler(ClientInterface clientInterface) {
 		this.closeLatch = new CountDownLatch(1);
+		this.clientInterface = clientInterface;
 		handlerMethods.put("products", new Command(){
 
 			@Override
 			public void runMethod(Object o) {
-				this.setProducts(o);
+//				this.setProducts(o);
 			}
 
 			@Override
@@ -41,7 +43,7 @@ public class ClientWebsocketHandler {
 
 			@Override
 			public void runMethod(Object o) {
-				this.setStoreProducts(o);
+//				this.setStoreProducts(o);
 			}
 
 			@Override
@@ -64,8 +66,6 @@ public class ClientWebsocketHandler {
 	public void onConnect(Session session) {
 		System.out.println("Got connect: %s%n" + session);
 		ClientApp.session = session;
-		new ClientInterface();
-
 	}
 	
 	public void onMessage(byte[] data, int offset, int lenght){
