@@ -30,6 +30,8 @@ public class DAL {
 		DAL() {
     	String filePathAndName =  "sqlserver.properties";
 			try{
+				System.out.println("hellooooooooo");
+				
 				final Properties properties = new Properties();
 				// get sql server connection url from properties file
 				ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -38,6 +40,11 @@ public class DAL {
 					resourceStream.close();
 				driver = properties.getProperty("db_driver");
 				conn = properties.getProperty("db_url");
+				
+				System.out.println(driver);
+				System.out.println(conn);
+				System.out.println("hellooooooooo");
+				
 				// load driver
 				Class.forName(driver);
 				// connect
