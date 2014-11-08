@@ -7,8 +7,12 @@ import java.nio.ByteBuffer;
 
 public class ObjectWrapper implements Serializable {
 
-	String key; 
-	Object obj;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3284332358893283862L;
+	private String key; 
+	private Object obj;
 	
 	public ObjectWrapper(String key, Object obj){
 		this.key = key;
