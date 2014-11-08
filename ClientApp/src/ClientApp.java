@@ -21,6 +21,7 @@ public class ClientApp {
 	public void createConnection(){
 		client = new WebSocketClient();
 		socket = new ClientWebsocketHandler(clientInterface);
+		
 		try {
 			client.start();
 			URI serverUri = new URI("ws://localhost:8080/");
