@@ -445,10 +445,11 @@ public class ClientInterface extends JFrame {
 				btnLogin.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent arg0) {
-						
+						socket.send("login", new User(txtEmail.getText(), txtPassword.getText()));
 						
 						//load driver
 						try {
+
 							
 							q = "SELECT [user_Id], [user_email], [user_password] FROM [dbo].[user] WHERE [user_email] = '" + txtEmail.getText()
 															+ "' AND [user_password] = '" + txtPassword.getText()+"'";

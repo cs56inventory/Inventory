@@ -133,6 +133,7 @@ public class ServerWebSocketHandler extends DAL{
 			
 			if(this.user.getUser_Id()!=0){
 				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
+				this.send("user", this.user);
 				//return user products, orders
 				Store_Member storeMember = new Store_Member(qryResults.get(0));
 				

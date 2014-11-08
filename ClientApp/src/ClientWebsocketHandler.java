@@ -40,6 +40,7 @@ public class ClientWebsocketHandler {
 			public void runMethod(Object o) {
 				if(o instanceof LinkedHashMap<?, ?>){
 					productsMap= (LinkedHashMap<String, Product>)o;
+//					clientInterface.
 //					for(Entry<?, ?> entry: products.entrySet()){
 //						entry.getKey();
 //						entry.getValue();
@@ -48,6 +49,13 @@ public class ClientWebsocketHandler {
 			}
 		});
 		handlerMethods.put("store_products", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+//				this.setStoreProducts(o);
+			}
+		});		
+		handlerMethods.put("login", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
@@ -124,7 +132,7 @@ public class ClientWebsocketHandler {
 		this.send("connection refused");
 	}
 	
-	private void send(String key, Object object){
+	void send(String key, Object object){
 		ObjectWrapper data = new ObjectWrapper(key, object);
 		try {
 			ClientApp.session.getRemote().sendBytes(data.getBuffer());
@@ -134,7 +142,7 @@ public class ClientWebsocketHandler {
 		}
 	}
 	
-	private void send(String message){
+	void send(String message){
 		try {
 			ClientApp.session.getRemote().sendString(message);
 		} catch (IOException e) {

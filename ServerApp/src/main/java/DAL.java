@@ -38,6 +38,7 @@ public class DAL {
 					resourceStream.close();
 				driver = properties.getProperty("db_driver");
 				conn = properties.getProperty("db_url");
+//				System.out.println(driver);
 				// load driver
 				Class.forName(driver);
 				// connect
