@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -22,32 +25,33 @@ public class ClientWebsocketHandler {
 	private ClientInterface clientInterface;
 	private final CountDownLatch closeLatch;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
+	Store store;
+	LinkedHashMap<String, Store_Product> storeProductsMap;
+	LinkedHashMap<String, Product> productsMap;
+	
 	@SuppressWarnings("unused")
 	
-
 	public ClientWebsocketHandler(ClientInterface clientInterface) {
 		this.closeLatch = new CountDownLatch(1);
 		this.clientInterface = clientInterface;
-		handlerMethods.put("products", new Command(){
+		handlerMethods.put("products", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
-//				this.setProducts(o);
-			}
-
-			@Override
-			public void runMethod() {
+				if(o instanceof LinkedHashMap<?, ?>){
+					productsMap= (LinkedHashMap<String, Product>)o;
+//					for(Entry<?, ?> entry: products.entrySet()){
+//						entry.getKey();
+//						entry.getValue();
+//					}
+				}
 			}
 		});
-		handlerMethods.put("store_products", new Command(){
+		handlerMethods.put("store_products", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
 //				this.setStoreProducts(o);
-			}
-
-			@Override
-			public void runMethod() {
 			}
 		});		
 	}
@@ -77,13 +81,10 @@ public class ClientWebsocketHandler {
     	Object unwrappedObject = wrappedObject.getObj();
     	System.out.println("New Message:  "+_message);
     	
-	  	this.handlerMethods.getOrDefault(_message, new Command(){
+	  	this.handlerMethods.getOrDefault(_message, new CommandAdapter(){
 		  	@Override public void runMethod(){
 		  		refuseConnection();
 		  	}
-				@Override
-				public void runMethod(Object o) {
-				}
 			}).runMethod(unwrappedObject);
     }
 	  else{

@@ -23,15 +23,11 @@ public class ServerWebSocketHandler extends DAL{
 	
 	public ServerWebSocketHandler(){
 		super();
-		handlerMethods.put("login", new Command(){
+		handlerMethods.put("login", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
 				login(o);
-			}
-
-			@Override
-			public void runMethod() {
 			}
 		});
 		
@@ -75,13 +71,10 @@ public class ServerWebSocketHandler extends DAL{
 	  	Object unwrappedObject = wrappedObject.getObj();
 	  	System.out.println("New Message:  "+_message);
 	
-	  	this.handlerMethods.getOrDefault(_message, new Command(){
+	  	this.handlerMethods.getOrDefault(_message, new CommandAdapter(){
 		  	@Override public void runMethod(){
 		  		refuseConnection();
 		  	}
-				@Override
-				public void runMethod(Object o) {
-				}
 			}).runMethod(unwrappedObject);
 	  }
 	  else{
@@ -141,29 +134,29 @@ public class ServerWebSocketHandler extends DAL{
 			if(this.user.getUser_Id()!=0){
 				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
 				//return user products, orders
-				Store_Member sm = new Store_Member(qryResults.get(0));
+				Store_Member storeMember = new Store_Member(qryResults.get(0));
 				
-				if(sm.getStore_id()!=0){
-					Store st = new Store(qryResults.get(0));
-					this.send("store", st);
+				if(storeMember.getStore_id()!=0){
+					Store store = new Store(qryResults.get(0));
+					this.send("store", store);
 					q = "SELECT "+DbMap.Store_product.store_id+","+DbMap.Store_product.product_upc+","+DbMap.Store_product.quantity+","+DbMap.Store_product.price+","+
 							DbMap.Store_product.min_quantity+","+DbMap.Store_product.status_id+","+DbMap.Product.upc+","+DbMap.Product.name+","+DbMap.Product.description+
 							" FROM "+DbMap.Store_product.store_product_table+" INNER JOIN "+DbMap.Product.product_table+" ON "+DbMap.Product.upc+"="+DbMap.Store_product.product_upc+
 							" WHERE "+DbMap.Store_product.store_id+"=?";
 						parameters = new ArrayList<String>();
-						parameters.add( new Integer(st.getStore_id()).toString() );
+						parameters.add( new Integer(store.getStore_id()).toString() );
 						qryResults = this.getQryResults(q, parameters);
-						LinkedHashMap<String, Store_Product> spMap = new LinkedHashMap<String, Store_Product>();
-						LinkedHashMap<String, Product> pMap = new LinkedHashMap<String, Product>();
+						LinkedHashMap<String, Store_Product> storeProductsMap = new LinkedHashMap<String, Store_Product>();
+						LinkedHashMap<String, Product> productsMap = new LinkedHashMap<String, Product>();
 						for(int i=0;i<qryResults.size();i++){
 							HashMap<String, String> row = qryResults.get(i);
-							Store_Product sp = new Store_Product(row);
-							spMap.put(new Integer(sp.getProduct_upc()).toString(), sp);
-							Product p = new Product(row);
-							pMap.put(new Integer(p.getProduct_upc()).toString(), p);
+							Store_Product storeProduct = new Store_Product(row);
+							storeProductsMap.put(new Integer(storeProduct.getProduct_upc()).toString(), storeProduct);
+							Product product = new Product(row);
+							productsMap.put(new Integer(product.getProduct_upc()).toString(), product);
 						}
-						this.send("products", pMap);
-						this.send("store_products", spMap);
+						this.send("products", productsMap);
+						this.send("store_products", storeProductsMap);
 				}
 				else{
 					
