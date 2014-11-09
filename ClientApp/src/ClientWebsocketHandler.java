@@ -1,20 +1,11 @@
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -25,22 +16,24 @@ public class ClientWebsocketHandler {
 	private ClientInterface clientInterface;
 	private final CountDownLatch closeLatch;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
+	User user;
 	Store store;
 	LinkedHashMap<String, Store_Product> storeProductsMap;
 	LinkedHashMap<String, Product> productsMap;
 	
 	@SuppressWarnings("unused")
 	
-	public ClientWebsocketHandler(ClientInterface clientInterface) {
+	public ClientWebsocketHandler(ClientApp app) {
 		this.closeLatch = new CountDownLatch(1);
-		this.clientInterface = clientInterface;
+		this.clientInterface = app.getInterface();
+		System.out.println("name "+clientInterface.g);
 		handlerMethods.put("products", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
 				if(o instanceof LinkedHashMap<?, ?>){
 					productsMap= (LinkedHashMap<String, Product>)o;
-//					clientInterface.
+//					clientInterface.login();
 //					for(Entry<?, ?> entry: products.entrySet()){
 //						entry.getKey();
 //						entry.getValue();
@@ -59,7 +52,12 @@ public class ClientWebsocketHandler {
 
 			@Override
 			public void runMethod(Object o) {
-//				this.setStoreProducts(o);
+				if(o instanceof User){
+					user = (User)o;
+					System.out.println("userid "+user.getUser_Id());
+					System.out.println("name "+clientInterface.g);
+					clientInterface.login();
+				}
 			}
 		});		
 	}
@@ -80,6 +78,7 @@ public class ClientWebsocketHandler {
 		ClientApp.session = session;
 	}
 	
+	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int lenght){
 
 		Object receivedObject = unwrapReceivedMessage(data);
@@ -88,7 +87,7 @@ public class ClientWebsocketHandler {
     	String _message = (String)(wrappedObject.getKey());
     	Object unwrappedObject = wrappedObject.getObj();
     	System.out.println("New Message:  "+_message);
-    	
+    	System.out.println("New object: " +wrappedObject.getObj() );
 	  	this.handlerMethods.getOrDefault(_message, new CommandAdapter(){
 		  	@Override public void runMethod(){
 		  		refuseConnection();
@@ -135,6 +134,7 @@ public class ClientWebsocketHandler {
 	void send(String key, Object object){
 		ObjectWrapper data = new ObjectWrapper(key, object);
 		try {
+			System.out.println(data.getBuffer());
 			ClientApp.session.getRemote().sendBytes(data.getBuffer());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

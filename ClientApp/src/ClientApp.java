@@ -15,12 +15,12 @@ public class ClientApp {
 	}
 	public ClientApp() {
 		// TODO Auto-generated method stub
+		this.clientInterface = new ClientInterface(this);
 		createConnection();
-		clientInterface = new ClientInterface(this);
 	}
 	public void createConnection(){
 		client = new WebSocketClient();
-		socket = new ClientWebsocketHandler(clientInterface);
+		socket = new ClientWebsocketHandler(this);
 		
 		try {
 			client.start();
@@ -46,5 +46,8 @@ public class ClientApp {
 	}
 	public ClientWebsocketHandler getSocket() {
 		return socket;
+	}
+	public ClientInterface getInterface() {
+		return clientInterface;
 	}
 }

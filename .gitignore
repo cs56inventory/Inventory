@@ -6,3 +6,4 @@ ServerApp/target/classes/ServerWebSocketHandler.class
 *.class
 *.class
 ServerApp/target/classes/Command.class
+*.class

@@ -23,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
 public class ClientInterface extends JFrame {
 	private ClientApp app;
 	private ClientWebsocketHandler socket;
-	
+	public String g= new String("gevorg");
 	private JPanel loginPane;
 	private JPanel contentPane;
 	private final JLabel lblEmail = new JLabel("Email:");
@@ -85,7 +85,6 @@ public class ClientInterface extends JFrame {
 		txtEmail.setColumns(10);
 		initGUI();
 		this.app = clientApp;
-		this.socket = app.getSocket();
 	}
 	
 	private void initGUI() {
@@ -445,84 +444,14 @@ public class ClientInterface extends JFrame {
 				btnLogin.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent arg0) {
-						socket.send("login", new User(txtEmail.getText(), txtPassword.getText()));
+						socket = app.getSocket();
+						socket.send( "login", new User(txtEmail.getText(), txtPassword.getText()) );
 						
 						//load driver
-						try {
-
-							
-							q = "SELECT [user_Id], [user_email], [user_password] FROM [dbo].[user] WHERE [user_email] = '" + txtEmail.getText()
-															+ "' AND [user_password] = '" + txtPassword.getText()+"'";
-							dbc dbc = new dbc();
-							dbc.setQuery(q);
-							rs = dbc.getRs();
-							int count = 0;
-							while(rs.next()) {
-							    ++count;
-							    Object[] users = new Object[3];
-								for(int i=0; i<3; i++){
-									users[i] = rs.getObject(i+1);
-								}
-								userID = ((int)users[0]);
-							}//end while
-						
-						//if no results or more than 1 result, login fails; reset login fields and change status label message
-						if (count == 0 && loggedIn==false) {
-							lblLoginStatus.setText("Login failed. Please try again.");
-						    txtEmail.setText("");
-						    txtEmail.requestFocus();
-						    txtPassword.setText("");
-						    dbc.closeConn();
-						
-						  //message if user is already logged in  
-						}else if(loggedIn){
-							lblLoginStatus.setText("Already logged in.");
-						}
-						//begin login else for successful login
-						else{
-							
-							loggedIn = true;
-							lblLoginStatus.setText("Logged in.");
-							txtEmail.setText("");
-							txtPassword.setText("");
-							lblTable.setText("Viewing Store Products Table");
-							
-							q = "SELECT [dbo].[store_member].[store_id],[product_name],[product_description],[store_product_price],"
-									+ "[store_product_quantity],[min_product_quantity]"
-									+ "FROM [dbo].[store_member] "
-									+ "INNER JOIN [dbo].[store_product] ON [dbo].[store_product].[store_id] = [dbo].[store_member].[store_id]"
-									+ "INNER JOIN [dbo].[product] ON [dbo].[product].[product_upc] = [dbo].[store_product].[product_upc]"
-									+ "WHERE [user_id] = "  + userID;
-							dbc.setQuery(q);
-							rs = dbc.getRs();
-							dbc.getRsmd();
-							
-							int numCols = dbc.getNumCols();
-							
-							//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
-							String[] colNames = {"Store ID", "Name", "Description", "Price", "Qty", "Min Qty"};
-							model = (DefaultTableModel) table.getModel();
-							model.setColumnIdentifiers(colNames);
-							
-							while(rs.next()){
-								Object[] objects = new Object[numCols];
-								for(int i=0; i<numCols; i++){
-									objects[i] = rs.getObject(i+1);
-								}
-								model.addRow(objects);
-							}//end while
-							table.setModel(model);
-							
-							contentPane.setVisible(true);
-							setContentPane(contentPane);
-						}//end login else
-						
-							dbc.closeConn();
-					} catch (ClassNotFoundException | SQLException e) {
-						e.printStackTrace();
-					}				
+		
 					}//end mouseClicked
 				});
+
 		lblEmail.setBounds(295, 151, 36, 17);
 		loginPane.add(lblEmail);
 		lblEmail.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -540,5 +469,80 @@ public class ClientInterface extends JFrame {
 		lblPassword.setHorizontalTextPosition(SwingConstants.LEFT);
 		lblPassword.setHorizontalAlignment(SwingConstants.LEFT);
 	}//end Init GUI	
+	
+	public void login(){
+
+			
+	
+//			q = "SELECT [user_Id], [user_email], [user_password] FROM [dbo].[user] WHERE [user_email] = '" + txtEmail.getText()
+//											+ "' AND [user_password] = '" + txtPassword.getText()+"'";
+//			dbc dbc = new dbc();
+//			dbc.setQuery(q);
+//			rs = dbc.getRs();
+//			int count = 0;
+//			while(rs.next()) {
+//			    ++count;
+//			    Object[] users = new Object[3];
+//				for(int i=0; i<3; i++){
+//					users[i] = rs.getObject(i+1);
+//				}
+//				userID = ((int)users[0]);
+//			}//end while
+		
+			//if no results or more than 1 result, login fails; reset login fields and change status label message
+		System.out.println(this.socket.user.getUser_Id() );
+			if (this.socket.user.getUser_Id() == 0 && loggedIn==false) {
+				lblLoginStatus.setText("Login failed. Please try again.");
+			    txtEmail.setText("");
+			    txtEmail.requestFocus();
+			    txtPassword.setText("");
+//			    dbc.closeConn();
+			
+			  //message if user is already logged in  
+			}else if(loggedIn){
+				lblLoginStatus.setText("Already logged in.");
+			}
+			//begin login else for successful login
+			else{
+				
+				loggedIn = true;
+				lblLoginStatus.setText("Logged in.");
+				txtEmail.setText("");
+				txtPassword.setText("");
+				lblTable.setText("Viewing Store Products Table");
+				
+//				q = "SELECT [dbo].[store_member].[store_id],[product_name],[product_description],[store_product_price],"
+//						+ "[store_product_quantity],[min_product_quantity]"
+//						+ "FROM [dbo].[store_member] "
+//						+ "INNER JOIN [dbo].[store_product] ON [dbo].[store_product].[store_id] = [dbo].[store_member].[store_id]"
+//						+ "INNER JOIN [dbo].[product] ON [dbo].[product].[product_upc] = [dbo].[store_product].[product_upc]"
+//						+ "WHERE [user_id] = "  + userID;
+//				dbc.setQuery(q);
+//				rs = dbc.getRs();
+//				dbc.getRsmd();
+//				
+//				int numCols = dbc.getNumCols();
+//				
+//				//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
+//				String[] colNames = {"Store ID", "Name", "Description", "Price", "Qty", "Min Qty"};
+//				model = (DefaultTableModel) table.getModel();
+//				model.setColumnIdentifiers(colNames);
+//				
+//				while(rs.next()){
+//					Object[] objects = new Object[numCols];
+//					for(int i=0; i<numCols; i++){
+//						objects[i] = rs.getObject(i+1);
+//					}
+//					model.addRow(objects);
+//				}//end while
+//				table.setModel(model);
+//				
+				contentPane.setVisible(true);
+				setContentPane(contentPane);
+			}//end login else
+		
+//			dbc.closeConn();
+	
+	}
 }//end JFrame class
 

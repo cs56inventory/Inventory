@@ -1,4 +1,5 @@
 
+
 public abstract class CommandAdapter implements Command {
 
 	@Override
