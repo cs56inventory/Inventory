@@ -13,43 +13,25 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 @WebSocket
 public class ClientWebsocketHandler {
+	private ClientApp app;
 	private ClientInterface clientInterface;
 	private final CountDownLatch closeLatch;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
-	User user;
-	Store store;
-	LinkedHashMap<String, Store_Product> storeProductsMap;
-	LinkedHashMap<String, Product> productsMap;
+	User user = new User();
+	Store store = new Store();
+	LinkedHashMap<Integer, Store_Product> storeProductsMap = new LinkedHashMap<Integer, Store_Product>();
+	LinkedHashMap<Integer, Product> productsMap= new LinkedHashMap<Integer, Product>();
 	
 	@SuppressWarnings("unused")
 	
 	public ClientWebsocketHandler(ClientApp app) {
+		this.app = app;
 		this.closeLatch = new CountDownLatch(1);
 		this.clientInterface = app.getInterface();
 		System.out.println("name "+clientInterface.g);
-		handlerMethods.put("products", new CommandAdapter(){
-
-			@Override
-			public void runMethod(Object o) {
-				if(o instanceof LinkedHashMap<?, ?>){
-					productsMap= (LinkedHashMap<String, Product>)o;
-//					clientInterface.login();
-//					for(Entry<?, ?> entry: products.entrySet()){
-//						entry.getKey();
-//						entry.getValue();
-//					}
-				}
-			}
-		});
-		handlerMethods.put("store_products", new CommandAdapter(){
-
-			@Override
-			public void runMethod(Object o) {
-//				this.setStoreProducts(o);
-			}
-		});		
+		
 		handlerMethods.put("login", new CommandAdapter(){
-
+			
 			@Override
 			public void runMethod(Object o) {
 				if(o instanceof User){
@@ -59,7 +41,37 @@ public class ClientWebsocketHandler {
 					clientInterface.login();
 				}
 			}
+		});	
+		
+		handlerMethods.put("login_failed", new CommandAdapter(){
+			
+			@Override
+			public void runMethod() {
+				clientInterface.loginFailed();
+			}
+		});	
+		
+		handlerMethods.put("products", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+				if(o instanceof LinkedHashMap<?, ?>){
+					productsMap.putAll((LinkedHashMap<Integer, Product>)o);
+				}
+			}
+		});
+		
+		handlerMethods.put("store_products", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+				storeProductsMap = (LinkedHashMap<Integer, Store_Product>)o;
+
+				System.out.println("store products "+storeProductsMap.values().toArray());
+				clientInterface.fillStoreProducts();
+			}
 		});		
+	
 	}
 
 	public boolean awaitClose(int duration, TimeUnit unit) throws InterruptedException {
@@ -102,7 +114,13 @@ public class ClientWebsocketHandler {
 	
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
+		
 		System.out.printf("Got msg: %s%n", msg);
+  	this.handlerMethods.getOrDefault(msg, new CommandAdapter(){
+	  	@Override public void runMethod(){
+	  		refuseConnection();
+	  	}
+		}).runMethod();
 	}
 	
 	public Object unwrapReceivedMessage(byte[] byts) {
@@ -139,6 +157,16 @@ public class ClientWebsocketHandler {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		catch(NullPointerException e){
+			
+			System.out.println("failed "+this.app.getClient().isFailed());
+			System.out.println("isrunning  "+this.app.getClient().isRunning());
+			System.out.println("stopped  "+this.app.getClient().isStopped());
+			System.out.println("started  "+this.app.getClient().isStarted());
+			System.out.println("isstarting  "+this.app.getClient().isStarting());
+			this.app.createConnection();
+			System.out.println("isstarting  "+this.app.getClient().isStarting());
 		}
 	}
 	

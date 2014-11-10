@@ -50,4 +50,19 @@ public final class DbMap {
 		static final String description = DbMap.Product.product_table+"."+"[product_description]";
 
 	}	
+	
+	static class Order{
+		static final String order_table = "[order]";
+		static final String order_id = DbMap.Order.order_table+"."+"[order_id]";
+		static final String store_id = DbMap.Order.order_table+"."+"[store_id]";
+		static final String distributor_id = DbMap.Order.order_table+"."+"[distributor_id]";
+		static final String shipping_fee = DbMap.Order.order_table+"."+"[order_shipping_fee]";
+		static final String total_price = DbMap.Order.order_table+"."+"[total_price]";
+		static final String distributor_feedback = DbMap.Order.order_table+"."+"[distributor_feedback]";
+		static final String store_feedback = DbMap.Order.order_table+"."+"[store_feedback]";
+		static final String created_at = DbMap.Order.order_table+"."+"[created_at]";
+		static final String updated_at = DbMap.Order.order_table+"."+"[updated_at]";
+		static final String status_id = DbMap.Order.order_table+"."+"[order_status_id]";
+
+	}	
 }

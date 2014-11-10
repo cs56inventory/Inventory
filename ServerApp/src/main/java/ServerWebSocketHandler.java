@@ -86,9 +86,14 @@ public class ServerWebSocketHandler extends DAL{
 	}
 	
 	@OnWebSocketMessage
-	public void onMessage(String message){
-		System.out.println("Message:  "+message);
+	public void onMessage(String msg){
 		
+		System.out.println("Message:  "+msg);
+  	this.handlerMethods.getOrDefault(msg, new CommandAdapter(){
+	  	@Override public void runMethod(){
+	  		refuseConnection();
+	  	}
+		}).runMethod();
 	}
 	
 	public Object unwrapReceivedMessage(byte[] byts) {
@@ -117,12 +122,6 @@ public class ServerWebSocketHandler extends DAL{
 		if( receivedObject instanceof User){
 			this.user = (User)receivedObject;
 			
-//			String q = " SELECT "+DbMap.User.user_id+","+DbMap.User.first_name+","+
-//					DbMap.User.last_name+","+DbMap.User.email+","+DbMap.User.password+","+DbMap.User.created_at+","+DbMap.User.updated_at+","+DbMap.User.status_id+","+
-//					DbMap.Store_member.user_id+","+DbMap.Store_member.store_id+","+DbMap.Store_member.type_id+","+DbMap.Store_member.status_id+","+DbMap.Store.store_id+","+
-//					DbMap.Store.name+","+ DbMap.Store.street_address+","+DbMap.Store.city+","+DbMap.Store.state+","+DbMap.Store.zip_code+","+DbMap.Store.phone_number+","+
-//					DbMap.Store.status_id+" FROM "+DbMap.User.user_table+" INNER JOIN "+DbMap.Store_member.store_member_table+" ON "+DbMap.User.user_id+"="+DbMap.Store_member.user_id+
-//					" INNER JOIN "+DbMap.Store.store_table+" ON "+DbMap.Store.store_id+"="+DbMap.Store_member.store_id+" WHERE "+DbMap.User.email+"=? AND "+DbMap.User.password+"=?";
 			String qry = 
 					select(new String[]{
 							DbMap.User.user_id,DbMap.User.first_name,DbMap.User.last_name,DbMap.User.email,DbMap.User.password,DbMap.User.created_at,DbMap.User.updated_at,
@@ -149,10 +148,12 @@ public class ServerWebSocketHandler extends DAL{
 							});
 			String[] parameters = new String[]{user.getUser_email(),user.getUser_password()};
 			ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
-			qryResults.get(0);
-System.out.println("qry results "+ qryResults.get(0));
-			this.user = new User(qryResults.get(0));
-			
+			if(!qryResults.isEmpty()){
+				qryResults.get(0);
+				System.out.println("qry results "+ qryResults.get(0));
+				this.user = new User(qryResults.get(0));
+			}
+
 			if(this.user.getUser_Id()!=0){
 				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
 				this.send("login", this.user);
@@ -162,10 +163,6 @@ System.out.println("qry results "+ qryResults.get(0));
 				if(storeMember.getStore_id()!=0){
 					Store store = new Store(qryResults.get(0));
 					this.send("store", store);
-//					String q = "SELECT "+DbMap.Store_product.store_id+","+DbMap.Store_product.product_upc+","+DbMap.Store_product.quantity+","+DbMap.Store_product.price+","+
-//							DbMap.Store_product.min_quantity+","+DbMap.Store_product.status_id+","+DbMap.Product.upc+","+DbMap.Product.name+","+DbMap.Product.description+
-//							" FROM "+DbMap.Store_product.store_product_table+" INNER JOIN "+DbMap.Product.product_table+" ON "+DbMap.Product.upc+"="+DbMap.Store_product.product_upc+
-//							" WHERE "+DbMap.Store_product.store_id+"=?";
 					
 					qry = 
 							select(new String[]{
@@ -185,14 +182,14 @@ System.out.println("qry results "+ qryResults.get(0));
 									});
 						parameters = new String[]{ new Integer(store.getStore_id()).toString() };
 						qryResults = this.getQryResults(qry, parameters);
-						LinkedHashMap<String, Store_Product> storeProductsMap = new LinkedHashMap<String, Store_Product>();
-						LinkedHashMap<String, Product> productsMap = new LinkedHashMap<String, Product>();
+						LinkedHashMap<Integer, Store_Product> storeProductsMap = new LinkedHashMap<Integer, Store_Product>();
+						LinkedHashMap<Integer, Product> productsMap = new LinkedHashMap<Integer, Product>();
 						for(int i=0;i<qryResults.size();i++){
 							HashMap<String, String> row = qryResults.get(i);
 							Store_Product storeProduct = new Store_Product(row);
-							storeProductsMap.put(new Integer(storeProduct.getProduct_upc()).toString(), storeProduct);
+							storeProductsMap.put(storeProduct.getProduct_upc(), storeProduct);
 							Product product = new Product(row);
-							productsMap.put(new Integer(product.getProduct_upc()).toString(), product);
+							productsMap.put(product.getProduct_upc(), product);
 						}
 						this.send("products", productsMap);
 						this.send("store_products", storeProductsMap);

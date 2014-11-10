@@ -19,9 +19,7 @@ public class Store implements Serializable{
 	public Store(){
 		
 	}
-//	public Store(int store_id){
-//		this.setProperties();
-//	}
+
 	public Store(HashMap<String, String> row){
 
 		this.setProperties(row);
@@ -103,15 +101,7 @@ public class Store implements Serializable{
 	public void setStore_status_id(int store_status_id) {
 		this.store_status_id = store_status_id;
 	}
-	
-//	private void setProperties(){
-//		String q = "SELECT * FROM "+DbMap.Store.table_name+" WHERE "+DbMap.Store.store_id+"=?";
-//		ArrayList <String> parameters = new ArrayList<String>();
-//		parameters.add(new Integer(this.getStore_id()).toString());
-//		DAL qry = new DAL(q, parameters);
-//		this.setProperties(qry.getResults().get(0));
-//	}
-	
+		
 	private void setProperties(HashMap<String, String> row){
 		this.setStore_id(new Integer(row.get(DbMap.Store.store_id)));
 		this.setStore_name(row.get(DbMap.Store.name));

@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -76,11 +77,11 @@ public class ClientInterface extends JFrame {
 
 	public ClientInterface(ClientApp clientApp) {
 		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtPassword.setBounds(343, 182, 119, 20);
-		
+		txtPassword.setBounds(270, 202, 289, 40);
+		txtPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		txtPassword.setColumns(10);
-		txtEmail.setBounds(343, 151, 119, 20);
-		
+		txtEmail.setBounds(270, 151, 289, 40);
+		txtEmail.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		
 		txtEmail.setColumns(10);
 		initGUI();
@@ -430,10 +431,10 @@ public class ClientInterface extends JFrame {
 		loginPane.setLayout(null);
 		loginPane.setBounds(0, 0, 802, 474);
 		loginPane.add(contentPane);
-		btnLogin.setBounds(327, 216, 86, 25);
+		btnLogin.setBounds(350, 246, 100, 35);
 		contentPane.setVisible(false);
 		loginPane.setVisible(true);
-		btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 22));
 		
 				
 		//		******************
@@ -446,60 +447,32 @@ public class ClientInterface extends JFrame {
 					public void mouseClicked(MouseEvent arg0) {
 						socket = app.getSocket();
 						socket.send( "login", new User(txtEmail.getText(), txtPassword.getText()) );
-						
-						//load driver
 		
 					}//end mouseClicked
 				});
 
-		lblEmail.setBounds(295, 151, 36, 17);
+		lblEmail.setBounds(180, 165, 56, 17);
 		loginPane.add(lblEmail);
-		lblEmail.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblEmail.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		
 		//add user components to contentPane; establish dimensions of components
-		lblEmail.setHorizontalTextPosition(SwingConstants.LEFT);
-		lblEmail.setHorizontalAlignment(SwingConstants.LEFT);
-		lblPassword.setBounds(273, 182, 63, 17);
+//		lblEmail.setHorizontalTextPosition(SwingConstants.LEFT);
+//		lblEmail.setHorizontalAlignment(SwingConstants.LEFT);
+		lblPassword.setBounds(180, 210, 80, 17);
 		loginPane.add(lblPassword);
 		loginPane.add(lblEmail);	
 		loginPane.add(txtEmail);
 		loginPane.add(txtPassword);
 		loginPane.add(btnLogin);
-		lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblPassword.setHorizontalTextPosition(SwingConstants.LEFT);
-		lblPassword.setHorizontalAlignment(SwingConstants.LEFT);
+		lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 18));
+//		lblPassword.setHorizontalTextPosition(SwingConstants.LEFT);
+//		lblPassword.setHorizontalAlignment(SwingConstants.LEFT);
 	}//end Init GUI	
 	
 	public void login(){
 
-			
-	
-//			q = "SELECT [user_Id], [user_email], [user_password] FROM [dbo].[user] WHERE [user_email] = '" + txtEmail.getText()
-//											+ "' AND [user_password] = '" + txtPassword.getText()+"'";
-//			dbc dbc = new dbc();
-//			dbc.setQuery(q);
-//			rs = dbc.getRs();
-//			int count = 0;
-//			while(rs.next()) {
-//			    ++count;
-//			    Object[] users = new Object[3];
-//				for(int i=0; i<3; i++){
-//					users[i] = rs.getObject(i+1);
-//				}
-//				userID = ((int)users[0]);
-//			}//end while
-		
-			//if no results or more than 1 result, login fails; reset login fields and change status label message
-		System.out.println(this.socket.user.getUser_Id() );
-			if (this.socket.user.getUser_Id() == 0 && loggedIn==false) {
-				lblLoginStatus.setText("Login failed. Please try again.");
-			    txtEmail.setText("");
-			    txtEmail.requestFocus();
-			    txtPassword.setText("");
-//			    dbc.closeConn();
-			
-			  //message if user is already logged in  
-			}else if(loggedIn){
+		  //message if user is already logged in  
+			if(loggedIn){
 				lblLoginStatus.setText("Already logged in.");
 			}
 			//begin login else for successful login
@@ -510,39 +483,45 @@ public class ClientInterface extends JFrame {
 				txtEmail.setText("");
 				txtPassword.setText("");
 				lblTable.setText("Viewing Store Products Table");
-				
-//				q = "SELECT [dbo].[store_member].[store_id],[product_name],[product_description],[store_product_price],"
-//						+ "[store_product_quantity],[min_product_quantity]"
-//						+ "FROM [dbo].[store_member] "
-//						+ "INNER JOIN [dbo].[store_product] ON [dbo].[store_product].[store_id] = [dbo].[store_member].[store_id]"
-//						+ "INNER JOIN [dbo].[product] ON [dbo].[product].[product_upc] = [dbo].[store_product].[product_upc]"
-//						+ "WHERE [user_id] = "  + userID;
-//				dbc.setQuery(q);
-//				rs = dbc.getRs();
-//				dbc.getRsmd();
-//				
-//				int numCols = dbc.getNumCols();
-//				
-//				//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
-//				String[] colNames = {"Store ID", "Name", "Description", "Price", "Qty", "Min Qty"};
-//				model = (DefaultTableModel) table.getModel();
-//				model.setColumnIdentifiers(colNames);
-//				
-//				while(rs.next()){
-//					Object[] objects = new Object[numCols];
-//					for(int i=0; i<numCols; i++){
-//						objects[i] = rs.getObject(i+1);
-//					}
-//					model.addRow(objects);
-//				}//end while
-//				table.setModel(model);
-//				
+
+	
 				contentPane.setVisible(true);
 				setContentPane(contentPane);
 			}//end login else
-		
-//			dbc.closeConn();
 	
+	}
+	
+	public void loginFailed(){
+		//if no results or more than 1 result, login fails; reset login fields and change status label message
+		System.out.println(this.socket.user.getUser_Id() );
+		if (this.socket.user.getUser_Id() == 0 && loggedIn==false) {
+			lblLoginStatus.setText("Login failed. Please try again.");
+		    txtEmail.setText("");
+		    txtEmail.requestFocus();
+		    txtPassword.setText("");
+		} 
+	}
+	
+	//fills Store Products table
+	public void fillStoreProducts(){
+	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
+		String[] colNames = {"Product UPC", "Name", "Description", "Price", "Qty", "Min Qty"};
+		model = (DefaultTableModel) table.getModel();
+		model.setColumnIdentifiers(colNames);
+		Store_Product m = new Store_Product();
+
+		for(Entry<?, ?> entry: this.socket.storeProductsMap.entrySet()){
+			entry.getKey();
+			Store_Product spr = (Store_Product)entry.getValue();
+			Object[] properties = new Object[]{spr.getProduct_upc(),this.socket.productsMap.get(spr.getProduct_upc()).getProduct_name(), 
+					this.socket.productsMap.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
+					spr.getMin_product_quantity()};
+			model.addRow(properties);
+//			table.setModel(model);
+		}
+
+//		table.
+
 	}
 }//end JFrame class
 

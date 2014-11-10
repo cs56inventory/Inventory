@@ -35,8 +35,8 @@ public class DAL {
 				// get sql server connection url from properties file
 				ClassLoader loader = Thread.currentThread().getContextClassLoader();
 				InputStream resourceStream = loader.getResourceAsStream(filePathAndName);
-					properties.load(resourceStream);
-					resourceStream.close();
+				properties.load(resourceStream);
+				resourceStream.close();
 				driver = properties.getProperty("db_driver");
 				conn = properties.getProperty("db_url");
 
@@ -90,16 +90,6 @@ public class DAL {
 		
 		private void setResults() throws SQLException{
 			
-//		   int rowCount;  
-//		   int currentRow = this.resultSet.getRow();            // Get current row  
-//		   rowCount = this.resultSet.last() ? this.resultSet.getRow() : 0; // Determine number of rows  
-//		   if (currentRow == 0){                      // If there was no current row  
-//		  	 this.resultSet.beforeFirst();
-//		   }															// We want next() to go to first row  
-//		   else{                                      // If there WAS a current row  
-//		  	 this.resultSet.absolute(currentRow);
-//		   }
-			
 			this.results = new ArrayList<LinkedHashMap<String, String>>();
 		  try {
 		  	
@@ -108,7 +98,7 @@ public class DAL {
 					
 				   for(int i=0; i<this.numCols; ++i){ 
 				  	 System.out.println(i+" Column name: "+this.columns[i]+" table name "+ rsmd.getTableName(i+1));
-//				  	 String key = rsmd.getTableName(i)+"].["+rsmd.getColumnName(i)+"]";
+
 				  	 String key = this.columns[i];
 				  	 row.put(key,this.resultSet.getString(i+1));
 				   }

@@ -19,16 +19,24 @@ public class ClientApp {
 		createConnection();
 	}
 	public void createConnection(){
-		client = new WebSocketClient();
-		socket = new ClientWebsocketHandler(this);
 		
+		if(socket == null){
+			socket = new ClientWebsocketHandler(this);
+		}
 		try {
-			client.start();
+			if(client==null || !client.isRunning()){
+				client = new WebSocketClient();
+				client.setMaxIdleTimeout(86400000);
+				client.start();
+
+
+			}
+
 			URI serverUri = new URI("ws://localhost:8080/");
 			ClientUpgradeRequest request = new ClientUpgradeRequest();
 			client.connect(socket, serverUri, request);
 			System.out.printf("connecting to: %s%n", serverUri);
-			
+
 			
 			// socket.awaitClose(15, TimeUnit.SECONDS);
 		} catch (Throwable t) {
@@ -41,6 +49,7 @@ public class ClientApp {
 			}
 		}
 	}
+
 	public WebSocketClient getClient() {
 		return client;
 	}
