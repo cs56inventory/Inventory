@@ -6,7 +6,7 @@ public final class DbMap {
 		
 	}
 	static class User{
-		static final String user_table = DbMap.db+"."+"[user]";
+		static final String user_table = "[user]";
 		static final String user_id = DbMap.User.user_table+"."+"[user_Id]";
 		static final String first_name = DbMap.User.user_table+"."+"[user_first_name]";
 		static final String last_name = DbMap.User.user_table+"."+"[user_last_name]";
@@ -17,14 +17,14 @@ public final class DbMap {
 		static final String status_id = DbMap.User.user_table+"."+"[user_status_id]";
 	}
 	static class Store_member{
-		static final String store_member_table = DbMap.db+"."+"[store_member]";
+		static final String store_member_table ="[store_member]";
 		static final String store_id = DbMap.Store_member.store_member_table+"."+"[store_id]";
 		static final String user_id = DbMap.Store_member.store_member_table+"."+"[user_id]";
 		static final String type_id = DbMap.Store_member.store_member_table+"."+"[member_type_id]";
 		static final String status_id = DbMap.Store_member.store_member_table+"."+"[member_status_id]";
 	}	
 	static class Store{
-		static final String store_table = DbMap.db+"."+"[store]";
+		static final String store_table = "[store]";
 		static final String store_id = DbMap.Store.store_table+"."+"[store_id]";
 		static final String name = DbMap.Store.store_table+"."+"[store_name]";
 		static final String street_address = DbMap.Store.store_table+"."+"[store_street_address]";
@@ -35,7 +35,7 @@ public final class DbMap {
 		static final String status_id = DbMap.Store.store_table+"."+"[store_status_id]";
 	}	
 	static class Store_product{
-		static final String store_product_table = DbMap.db+"."+"[store_product]";
+		static final String store_product_table = "[store_product]";
 		static final String store_id = DbMap.Store_product.store_product_table+"."+"[store_id]";
 		static final String product_upc = DbMap.Store_product.store_product_table+"."+"[product_upc]";
 		static final String quantity = DbMap.Store_product.store_product_table+"."+"[store_product_quantity]";
@@ -44,10 +44,25 @@ public final class DbMap {
 		static final String status_id = DbMap.Store_product.store_product_table+"."+"[store_product_status_id]";
 	}	
 	static class Product{
-		static final String product_table = DbMap.db+"."+"[product]";
+		static final String product_table = "[product]";
 		static final String upc = DbMap.Product.product_table+"."+"[product_upc]";
 		static final String name = DbMap.Product.product_table+"."+"[product_name]";
 		static final String description = DbMap.Product.product_table+"."+"[product_description]";
+
+	}	
+	
+	static class Order{
+		static final String order_table = "[order]";
+		static final String order_id = DbMap.Order.order_table+"."+"[order_id]";
+		static final String store_id = DbMap.Order.order_table+"."+"[store_id]";
+		static final String distributor_id = DbMap.Order.order_table+"."+"[distributor_id]";
+		static final String shipping_fee = DbMap.Order.order_table+"."+"[order_shipping_fee]";
+		static final String total_price = DbMap.Order.order_table+"."+"[total_price]";
+		static final String distributor_feedback = DbMap.Order.order_table+"."+"[distributor_feedback]";
+		static final String store_feedback = DbMap.Order.order_table+"."+"[store_feedback]";
+		static final String created_at = DbMap.Order.order_table+"."+"[created_at]";
+		static final String updated_at = DbMap.Order.order_table+"."+"[updated_at]";
+		static final String status_id = DbMap.Order.order_table+"."+"[order_status_id]";
 
 	}	
 }

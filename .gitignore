@@ -1,2 +1,9 @@
 *.properties
 ServerApp/src/main/resources/sqlserver.properties
+*.class
+*.class
+ServerApp/target/classes/ServerWebSocketHandler.class
+*.class
+*.class
+ServerApp/target/classes/Command.class
+*.class

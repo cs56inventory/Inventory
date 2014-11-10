@@ -1,17 +1,11 @@
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -19,37 +13,65 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 @WebSocket
 public class ClientWebsocketHandler {
+	private ClientApp app;
 	private ClientInterface clientInterface;
 	private final CountDownLatch closeLatch;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
+	User user = new User();
+	Store store = new Store();
+	LinkedHashMap<Integer, Store_Product> storeProductsMap = new LinkedHashMap<Integer, Store_Product>();
+	LinkedHashMap<Integer, Product> productsMap= new LinkedHashMap<Integer, Product>();
+	
 	@SuppressWarnings("unused")
 	
-
-	public ClientWebsocketHandler(ClientInterface clientInterface) {
+	public ClientWebsocketHandler(ClientApp app) {
+		this.app = app;
 		this.closeLatch = new CountDownLatch(1);
-		this.clientInterface = clientInterface;
-		handlerMethods.put("products", new Command(){
+		this.clientInterface = app.getInterface();
+		System.out.println("name "+clientInterface.g);
+		
+		handlerMethods.put("login", new CommandAdapter(){
+			
+			@Override
+			public void runMethod(Object o) {
+				if(o instanceof User){
+					user = (User)o;
+					System.out.println("userid "+user.getUser_Id());
+					System.out.println("name "+clientInterface.g);
+					clientInterface.login();
+				}
+			}
+		});	
+		
+		handlerMethods.put("login_failed", new CommandAdapter(){
+			
+			@Override
+			public void runMethod() {
+				clientInterface.loginFailed();
+			}
+		});	
+		
+		handlerMethods.put("products", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
-//				this.setProducts(o);
-			}
-
-			@Override
-			public void runMethod() {
+				if(o instanceof LinkedHashMap<?, ?>){
+					productsMap.putAll((LinkedHashMap<Integer, Product>)o);
+				}
 			}
 		});
-		handlerMethods.put("store_products", new Command(){
+		
+		handlerMethods.put("store_products", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
-//				this.setStoreProducts(o);
-			}
+				storeProductsMap = (LinkedHashMap<Integer, Store_Product>)o;
 
-			@Override
-			public void runMethod() {
+				System.out.println("store products "+storeProductsMap.values().toArray());
+				clientInterface.fillStoreProducts();
 			}
 		});		
+	
 	}
 
 	public boolean awaitClose(int duration, TimeUnit unit) throws InterruptedException {
@@ -68,6 +90,7 @@ public class ClientWebsocketHandler {
 		ClientApp.session = session;
 	}
 	
+	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int lenght){
 
 		Object receivedObject = unwrapReceivedMessage(data);
@@ -76,14 +99,11 @@ public class ClientWebsocketHandler {
     	String _message = (String)(wrappedObject.getKey());
     	Object unwrappedObject = wrappedObject.getObj();
     	System.out.println("New Message:  "+_message);
-    	
-	  	this.handlerMethods.getOrDefault(_message, new Command(){
+    	System.out.println("New object: " +wrappedObject.getObj() );
+	  	this.handlerMethods.getOrDefault(_message, new CommandAdapter(){
 		  	@Override public void runMethod(){
 		  		refuseConnection();
 		  	}
-				@Override
-				public void runMethod(Object o) {
-				}
 			}).runMethod(unwrappedObject);
     }
 	  else{
@@ -94,7 +114,13 @@ public class ClientWebsocketHandler {
 	
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
+		
 		System.out.printf("Got msg: %s%n", msg);
+  	this.handlerMethods.getOrDefault(msg, new CommandAdapter(){
+	  	@Override public void runMethod(){
+	  		refuseConnection();
+	  	}
+		}).runMethod();
 	}
 	
 	public Object unwrapReceivedMessage(byte[] byts) {
@@ -123,17 +149,28 @@ public class ClientWebsocketHandler {
 		this.send("connection refused");
 	}
 	
-	private void send(String key, Object object){
+	void send(String key, Object object){
 		ObjectWrapper data = new ObjectWrapper(key, object);
 		try {
+			System.out.println(data.getBuffer());
 			ClientApp.session.getRemote().sendBytes(data.getBuffer());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		catch(NullPointerException e){
+			
+			System.out.println("failed "+this.app.getClient().isFailed());
+			System.out.println("isrunning  "+this.app.getClient().isRunning());
+			System.out.println("stopped  "+this.app.getClient().isStopped());
+			System.out.println("started  "+this.app.getClient().isStarted());
+			System.out.println("isstarting  "+this.app.getClient().isStarting());
+			this.app.createConnection();
+			System.out.println("isstarting  "+this.app.getClient().isStarting());
+		}
 	}
 	
-	private void send(String message){
+	void send(String message){
 		try {
 			ClientApp.session.getRemote().sendString(message);
 		} catch (IOException e) {

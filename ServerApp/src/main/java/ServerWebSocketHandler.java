@@ -4,8 +4,6 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -23,18 +21,14 @@ public class ServerWebSocketHandler extends DAL{
 	
 	public ServerWebSocketHandler(){
 		super();
-		handlerMethods.put("login", new Command(){
+		handlerMethods.put("login", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
 				login(o);
 			}
-
-			@Override
-			public void runMethod() {
-			}
 		});
-		
+
 		System.out.println("init: code ");
 	}
 	@OnWebSocketClose
@@ -54,15 +48,15 @@ public class ServerWebSocketHandler extends DAL{
 		System.out.println("Connecting to:  "+this.session.getRemoteAddress().getAddress());
 
 
-		Timer timer = new Timer();
-
-		timer.scheduleAtFixedRate(new TimerTask() {
-		  @Override
-		  public void run() {
-			  System.out.println("Hello Again! ");
-			  send("Hello client! ");
-		  }
-		}, 5000, 5000);
+//		Timer timer = new Timer();
+//
+//		timer.scheduleAtFixedRate(new TimerTask() {
+//		  @Override
+//		  public void run() {
+//			  System.out.println("Hello Again! ");
+//			  send("Hello client! ");
+//		  }
+//		}, 5000, 5000);
 	}
 	
 	@OnWebSocketMessage
@@ -73,15 +67,16 @@ public class ServerWebSocketHandler extends DAL{
 	  	ObjectWrapper wrappedObject = (ObjectWrapper)receivedObject;
 	  	String _message = (String)(wrappedObject.getKey());
 	  	Object unwrappedObject = wrappedObject.getObj();
-	  	System.out.println("New Message:  "+_message);
-	
-	  	this.handlerMethods.getOrDefault(_message, new Command(){
+	  	System.out.println("Server Receved New Message:  "+_message);
+	  	System.out.println("bytes:  "+data);
+	  	System.out.println("offset:  "+offset);
+	  	System.out.println("lenght:  "+lenght);
+	  	System.out.println("message:  "+lenght);
+	  	this.handlerMethods.getOrDefault(_message, new CommandAdapter(){
 		  	@Override public void runMethod(){
+		  		System.out.println("refusing:  ");
 		  		refuseConnection();
 		  	}
-				@Override
-				public void runMethod(Object o) {
-				}
 			}).runMethod(unwrappedObject);
 	  }
 	  else{
@@ -91,9 +86,14 @@ public class ServerWebSocketHandler extends DAL{
 	}
 	
 	@OnWebSocketMessage
-	public void onMessage(String message){
-		System.out.println("Message:  "+message);
+	public void onMessage(String msg){
 		
+		System.out.println("Message:  "+msg);
+  	this.handlerMethods.getOrDefault(msg, new CommandAdapter(){
+	  	@Override public void runMethod(){
+	  		refuseConnection();
+	  	}
+		}).runMethod();
 	}
 	
 	public Object unwrapReceivedMessage(byte[] byts) {
@@ -106,7 +106,7 @@ public class ServerWebSocketHandler extends DAL{
      
             if(obj instanceof ObjectWrapper){
             	String _message = (String)((ObjectWrapper)obj).getKey();
-            	System.out.println("New Message:  "+_message);
+            	System.out.println("Server Receved New Message:  "+_message);
             }
         }
         catch(IOException e){
@@ -120,50 +120,79 @@ public class ServerWebSocketHandler extends DAL{
 	
 	private void login(Object receivedObject){
 		if( receivedObject instanceof User){
-			this.user = (User)( ((ObjectWrapper) receivedObject).getObj() );
+			this.user = (User)receivedObject;
 			
-			String q = "SELECT "+DbMap.User.user_id+","+DbMap.User.first_name+","+
-					DbMap.User.last_name+","+DbMap.User.email+","+DbMap.User.password+","+DbMap.User.created_at+","+DbMap.User.updated_at+","+DbMap.User.status_id+","+
-					DbMap.Store_member.user_id+","+DbMap.Store_member.store_id+","+DbMap.Store_member.type_id+","+DbMap.Store_member.status_id+","+DbMap.Store.store_id+","+
-					DbMap.Store.name+","+ DbMap.Store.street_address+","+DbMap.Store.city+","+DbMap.Store.state+","+DbMap.Store.zip_code+","+DbMap.Store.phone_number+","+
-					DbMap.Store.status_id+" FROM "+DbMap.User.user_table+" INNER JOIN "+DbMap.Store_member.store_member_table+" ON "+DbMap.User.user_id+"="+DbMap.Store_member.user_id+
-					" INNER JOIN "+DbMap.Store.store_table+" ON "+DbMap.Store.store_id+"="+DbMap.Store_member.store_id+" WHERE "+DbMap.User.email+"=? AND "+DbMap.User.password+"=?";
-			
-			ArrayList<String> parameters = new ArrayList<String>();
-			parameters.add(user.getUser_email());
-			parameters.add(user.getUser_password());
-			
-			ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(q, parameters);
-			qryResults.get(0);
-			
-			this.user = new User(qryResults.get(0));
-			
+			String qry = 
+					select(new String[]{
+							DbMap.User.user_id,DbMap.User.first_name,DbMap.User.last_name,DbMap.User.email,DbMap.User.password,DbMap.User.created_at,DbMap.User.updated_at,
+							DbMap.User.status_id, DbMap.Store_member.user_id, DbMap.Store_member.store_id, DbMap.Store_member.type_id, DbMap.Store_member.status_id, DbMap.Store.store_id, 
+							DbMap.Store.name,DbMap.Store.street_address,DbMap.Store.city,DbMap.Store.state,DbMap.Store.zip_code,DbMap.Store.phone_number,DbMap.Store.status_id
+							})+
+					from(
+							DbMap.User.user_table
+							)+
+					innerJoin(
+							DbMap.Store_member.store_member_table
+							)+
+					on(
+							DbMap.User.user_id, DbMap.Store_member.user_id
+							)+
+					innerJoin(
+							DbMap.Store.store_table
+							)+
+					on(
+							DbMap.Store.store_id,DbMap.Store_member.store_id
+							)+
+					where(new String[]{
+							DbMap.User.email,DbMap.User.password
+							});
+			String[] parameters = new String[]{user.getUser_email(),user.getUser_password()};
+			ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
+			if(!qryResults.isEmpty()){
+				qryResults.get(0);
+				System.out.println("qry results "+ qryResults.get(0));
+				this.user = new User(qryResults.get(0));
+			}
+
 			if(this.user.getUser_Id()!=0){
 				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
+				this.send("login", this.user);
 				//return user products, orders
-				Store_Member sm = new Store_Member(qryResults.get(0));
+				Store_Member storeMember = new Store_Member(qryResults.get(0));
 				
-				if(sm.getStore_id()!=0){
-					Store st = new Store(qryResults.get(0));
-					this.send("store", st);
-					q = "SELECT "+DbMap.Store_product.store_id+","+DbMap.Store_product.product_upc+","+DbMap.Store_product.quantity+","+DbMap.Store_product.price+","+
-							DbMap.Store_product.min_quantity+","+DbMap.Store_product.status_id+","+DbMap.Product.upc+","+DbMap.Product.name+","+DbMap.Product.description+
-							" FROM "+DbMap.Store_product.store_product_table+" INNER JOIN "+DbMap.Product.product_table+" ON "+DbMap.Product.upc+"="+DbMap.Store_product.product_upc+
-							" WHERE "+DbMap.Store_product.store_id+"=?";
-						parameters = new ArrayList<String>();
-						parameters.add( new Integer(st.getStore_id()).toString() );
-						qryResults = this.getQryResults(q, parameters);
-						LinkedHashMap<String, Store_Product> spMap = new LinkedHashMap<String, Store_Product>();
-						LinkedHashMap<String, Product> pMap = new LinkedHashMap<String, Product>();
+				if(storeMember.getStore_id()!=0){
+					Store store = new Store(qryResults.get(0));
+					this.send("store", store);
+					
+					qry = 
+							select(new String[]{
+									DbMap.Store_product.store_id,DbMap.Store_product.product_upc,DbMap.Store_product.quantity,DbMap.Store_product.price,DbMap.Store_product.min_quantity,
+									DbMap.Store_product.status_id,DbMap.Product.upc,DbMap.Product.name,DbMap.Product.description})+
+							from(
+									DbMap.Store_product.store_product_table
+									)+
+							innerJoin(
+									DbMap.Product.product_table
+									)+
+							on(
+									DbMap.Product.upc,DbMap.Store_product.product_upc
+									)+
+							where(new String[]{
+									DbMap.Store_product.store_id
+									});
+						parameters = new String[]{ new Integer(store.getStore_id()).toString() };
+						qryResults = this.getQryResults(qry, parameters);
+						LinkedHashMap<Integer, Store_Product> storeProductsMap = new LinkedHashMap<Integer, Store_Product>();
+						LinkedHashMap<Integer, Product> productsMap = new LinkedHashMap<Integer, Product>();
 						for(int i=0;i<qryResults.size();i++){
 							HashMap<String, String> row = qryResults.get(i);
-							Store_Product sp = new Store_Product(row);
-							spMap.put(new Integer(sp.getProduct_upc()).toString(), sp);
-							Product p = new Product(row);
-							pMap.put(new Integer(p.getProduct_upc()).toString(), p);
+							Store_Product storeProduct = new Store_Product(row);
+							storeProductsMap.put(storeProduct.getProduct_upc(), storeProduct);
+							Product product = new Product(row);
+							productsMap.put(product.getProduct_upc(), product);
 						}
-						this.send("products", pMap);
-						this.send("store_products", spMap);
+						this.send("products", productsMap);
+						this.send("store_products", storeProductsMap);
 				}
 				else{
 					
@@ -176,12 +205,14 @@ public class ServerWebSocketHandler extends DAL{
 	}
 	
 	private void refuseConnection() {
+		System.out.println("refusing connection:  ");
 			this.send("connection refused");
 	}
 	
 	private void send(String key, Object object){
 		ObjectWrapper data = new ObjectWrapper(key, object);
 		try {
+			System.out.println("Sending an object with key: " +key);
 			this.session.getRemote().sendBytes(data.getBuffer());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -191,10 +222,12 @@ public class ServerWebSocketHandler extends DAL{
 	
 	private void send(String message){
 		try {
+			System.out.println("Sending the following message: " +message);
 			this.session.getRemote().sendString(message);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
 }

@@ -16,6 +16,9 @@ public class User implements Serializable {
 	private int user_updated_at;
 	private int user_status_id;
 
+	public User(){
+	}
+	
 	public User(String user_email, String user_password){
 		this.user_email = user_email;
 		this.user_password = user_password;
@@ -101,6 +104,7 @@ public class User implements Serializable {
 	}
 	
 	private void setProperties(HashMap<String, String> row){
+		System.out.println("user id"+row.get(DbMap.User.user_id));
 		this.setUser_Id(new Integer(row.get(DbMap.User.user_id)));
 		this.setUser_first_name(row.get(DbMap.User.first_name));
 		this.setUser_last_name(row.get(DbMap.User.last_name));

@@ -30,6 +30,7 @@ public class ServerApp {
 			
 		  @Override
 		  public void configure(WebSocketServletFactory factory) {
+		  	
 		    factory.setCreator(new WebSocketCreator() {
 		      public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		        String query = req.getRequestURI().toString();
@@ -105,6 +106,7 @@ public class ServerApp {
 		
 		
 		server.setHandler(contextHandler);
+		server.setStopTimeout(86400000);
 		server.start();
 		server.join();
 		
