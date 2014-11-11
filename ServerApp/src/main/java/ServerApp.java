@@ -30,7 +30,8 @@ public class ServerApp {
 			
 		  @Override
 		  public void configure(WebSocketServletFactory factory) {
-		  	
+		  	System.out.println("Timeout "+getStopTimeout());
+		  	factory.getPolicy().setIdleTimeout(Integer.MAX_VALUE);
 		    factory.setCreator(new WebSocketCreator() {
 		      public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		        String query = req.getRequestURI().toString();
