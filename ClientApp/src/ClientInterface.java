@@ -33,8 +33,18 @@ public class ClientInterface extends JFrame {
 	private final JTextField txtEmail = new JTextField();
 	private final JTextField txtPassword = new JTextField();
 	private final JButton btnLogin = new JButton("Login");
+	
+	//tables and their scroll panes
+	//3 tables: products, orders placed, orders details
 	private final JTable tableProducts = new JTable();
 	private final JScrollPane scrollPaneProducts = new JScrollPane(tableProducts);
+	
+	private final JTable tableOrdersPlaced = new JTable();
+	private final JScrollPane scrollPaneOrdersPlaced = new JScrollPane(tableOrdersPlaced);
+	
+	private final JTable tableOrdersDetails = new JTable();
+	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
+	
 	private final JButton btnLogout = new JButton("Logout");
 	private DefaultTableModel model=null;
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
@@ -78,6 +88,8 @@ public class ClientInterface extends JFrame {
 
 	public ClientInterface(ClientApp clientApp) {
 		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		txtPassword.setBounds(270, 202, 289, 40);
 		txtPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		txtPassword.setColumns(10);
@@ -103,17 +115,29 @@ public class ClientInterface extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//dimensions of outer jframe
-		setBounds(100, 100, 818, 512);
+		setBounds(100, 100, 1280, 654);
 		
 		//content pane within jframe holds components
 		contentPane = new JPanel();
 		loginPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//contentPane.setVisible(true);
 		//setContentPane(contentPane);
 		setContentPane(loginPane);
+		
+		//dimensions for table scroll panes
 		scrollPaneProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		scrollPaneProducts.setBounds(20, 154, 761, 309);
+		scrollPaneProducts.setBounds(20, 154, 600, 200);
 		scrollPaneProducts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		scrollPaneOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneOrdersPlaced.setBounds(640, 154, 600, 200);
+		scrollPaneOrdersPlaced.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		scrollPaneOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneOrdersDetails.setBounds(20, 374, 600, 200);
+		scrollPaneOrdersDetails.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
 		btnViewStores.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnViewStores.setBounds(629, 68, 152, 44);
 		setVisible(true);
@@ -277,7 +301,7 @@ public class ClientInterface extends JFrame {
 					
 //					******************
 //					******************
-//					JTable Cell Click Event
+//					JTable Cell Click Event (for tableProducts)
 //					******************
 //					******************
 					tableProducts.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
@@ -414,6 +438,8 @@ public class ClientInterface extends JFrame {
 							}//end mouseClicked
 						});
 		contentPane.add(scrollPaneProducts);
+		contentPane.add(scrollPaneOrdersPlaced);
+		contentPane.add(scrollPaneOrdersDetails);
 		lblLoginStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblLoginStatus.setBounds(20, 129, 172, 23);
 		contentPane.add(lblLoginStatus);
