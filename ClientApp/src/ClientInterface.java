@@ -34,7 +34,7 @@ public class ClientInterface extends JFrame {
 	private final JTextField txtPassword = new JTextField();
 	private final JButton btnLogin = new JButton("Login");
 	private final JTable tableProducts = new JTable();
-	private final JScrollPane scrollPane = new JScrollPane(tableProducts);
+	private final JScrollPane scrollPaneProducts = new JScrollPane(tableProducts);
 	private final JButton btnLogout = new JButton("Logout");
 	private DefaultTableModel model=null;
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
@@ -111,9 +111,9 @@ public class ClientInterface extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//setContentPane(contentPane);
 		setContentPane(loginPane);
-		scrollPane.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		scrollPane.setBounds(20, 154, 761, 309);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPaneProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneProducts.setBounds(20, 154, 761, 309);
+		scrollPaneProducts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		btnViewStores.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnViewStores.setBounds(629, 68, 152, 44);
 		setVisible(true);
@@ -413,7 +413,7 @@ public class ClientInterface extends JFrame {
 								setContentPane(loginPane);
 							}//end mouseClicked
 						});
-		contentPane.add(scrollPane);
+		contentPane.add(scrollPaneProducts);
 		lblLoginStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblLoginStatus.setBounds(20, 129, 172, 23);
 		contentPane.add(lblLoginStatus);
