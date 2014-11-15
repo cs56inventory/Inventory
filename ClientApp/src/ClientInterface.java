@@ -1,4 +1,5 @@
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,8 +33,8 @@ public class ClientInterface extends JFrame {
 	private final JTextField txtEmail = new JTextField();
 	private final JTextField txtPassword = new JTextField();
 	private final JButton btnLogin = new JButton("Login");
-	private final JTable table = new JTable();
-	private final JScrollPane scrollPane = new JScrollPane(table);
+	private final JTable tableProducts = new JTable();
+	private final JScrollPane scrollPane = new JScrollPane(tableProducts);
 	private final JButton btnLogout = new JButton("Logout");
 	private DefaultTableModel model=null;
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
@@ -66,7 +67,7 @@ public class ClientInterface extends JFrame {
 //		EventQueue.invokeLater(new Runnable() {
 //			public void run() {
 //				try {
-//					storeInterface frame = new storeInterface();
+//					ClientInterface frame = new ClientInterface(app);
 //					frame.setVisible(true);
 //				} catch (Exception e) {
 //					e.printStackTrace();
@@ -76,7 +77,7 @@ public class ClientInterface extends JFrame {
 //	}//end main
 
 	public ClientInterface(ClientApp clientApp) {
-		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		txtPassword.setBounds(270, 202, 289, 40);
 		txtPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		txtPassword.setColumns(10);
@@ -146,7 +147,7 @@ public class ClientInterface extends JFrame {
 					model.setColumnIdentifiers(oldCols);
 					String[] colNames = {"Store ID", "Name", "Address", "City", "State", "Zip", "Phone"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					while(rs.next()){
@@ -157,7 +158,7 @@ public class ClientInterface extends JFrame {
 						model.addRow(objects);
 					}//end while
 
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing all stores:");
 				
 					dbc.closeConn();
@@ -201,7 +202,7 @@ public class ClientInterface extends JFrame {
 					//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 					String[] colNames = {"Dist. ID", "Name"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -212,7 +213,7 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing all distributors:");
 					//close connection
 					dbc.closeConn();
@@ -261,7 +262,7 @@ public class ClientInterface extends JFrame {
 					//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 					String[] colNames = {"UPC", "Name", "Description", "Distributor", "Qty"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -272,14 +273,14 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					
 //					******************
 //					******************
 //					JTable Cell Click Event
 //					******************
 //					******************
-					table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+					tableProducts.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 //							from stackoverflow.com on 11/2/14
 				        	public void valueChanged(ListSelectionEvent event) {
 //				        		each change in direction of the mouse button constitutes a change in value, so one click will open
@@ -287,21 +288,21 @@ public class ClientInterface extends JFrame {
 				        		valueChangedCount += 1;
 				        		if(valueChangedCount % 2 != 0){
 				        		try{						        	
-			        				rowID = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+			        				rowID = Integer.parseInt(tableProducts.getValueAt(tableProducts.getSelectedRow(), 0).toString());
 			        				try{
-						        		name = (table.getValueAt(table.getSelectedRow(), 1).toString());
+						        		name = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 1).toString());
 						        	}catch(NullPointerException ex){
 			        					name = "Not entered";
 			        				}try{
-			        					desc = (table.getValueAt(table.getSelectedRow(), 2).toString());
+			        					desc = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 2).toString());
 			        				}catch(NullPointerException ex){
 			        					desc = "Not entered";
 			        				}try{
-			        					dist = (table.getValueAt(table.getSelectedRow(), 3).toString());
+			        					dist = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 3).toString());
 			        				}catch(NullPointerException ex){
 			        					dist = "Not entered";
 			        				}try{
-			        					qty = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 4).toString());
+			        					qty = Integer.parseInt(tableProducts.getValueAt(tableProducts.getSelectedRow(), 4).toString());
 			        				}catch(NullPointerException ex){
 			        					qty = -1;
 			        				}
@@ -361,7 +362,7 @@ public class ClientInterface extends JFrame {
 					model.setColumnIdentifiers(oldCols);
 					String[] colNames = {"UPC", "Store ID", "Name", "Description", "Price", "Qty", "Min Qty"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -372,7 +373,7 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing this store's products:");
 			//close connection
 				dbc.closeConn();
@@ -506,7 +507,7 @@ public class ClientInterface extends JFrame {
 	public void fillStoreProducts(){
 	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 		String[] colNames = {"Product UPC", "Name", "Description", "Price", "Qty", "Min Qty"};
-		model = (DefaultTableModel) table.getModel();
+		model = (DefaultTableModel) tableProducts.getModel();
 		model.setColumnIdentifiers(colNames);
 		Store_Product m = new Store_Product();
 
@@ -517,10 +518,10 @@ public class ClientInterface extends JFrame {
 					this.socket.productsMap.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
 					spr.getMin_product_quantity()};
 			model.addRow(properties);
-//			table.setModel(model);
+//			tableProducts.setModel(model);
 		}
 
-//		table.
+//		tableProducts.
 
 	}
 }//end JFrame class
