@@ -9,8 +9,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Properties;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang.ArrayUtils;
+
+
+
 
 public class DAL {
 	// the database connection driver
@@ -25,7 +33,7 @@ public class DAL {
 		private String[] columns;
 		private String query; 
 		private String[] parameters;
-		private ArrayList<LinkedHashMap<String, String>> results;
+		private ArrayList<LinkedHashMap<String, String>> qryResults;
 		// constructor
 		DAL() {
     	String filePathAndName =  "sqlserver.properties";
@@ -59,7 +67,7 @@ public class DAL {
 		}
 		
 		private void executeQry(){
-
+			this.qryResults = new ArrayList<LinkedHashMap<String, String>>();
 			try {
 				connection = DriverManager.getConnection(conn);
 				this.preparedStatement = connection.prepareStatement(this.query);
@@ -90,7 +98,6 @@ public class DAL {
 		
 		private void setResults() throws SQLException{
 			
-			this.results = new ArrayList<LinkedHashMap<String, String>>();
 		  try {
 		  	
 				while (this.resultSet.next()){
@@ -102,7 +109,7 @@ public class DAL {
 				  	 String key = this.columns[i];
 				  	 row.put(key,this.resultSet.getString(i+1));
 				   }
-				   this.results.add(row);
+				   this.qryResults.add(row);
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -110,38 +117,38 @@ public class DAL {
 			}
 		}
 
-		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
+		public final ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
 			this.query=q;
 			this.executeQry();
-			return this.results;
+			return this.qryResults;
 		}
 		
-		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q, String[] parameters){
-			this.query="USE "+DbMap.db+" "+q;
+		public final ArrayList<LinkedHashMap<String, String>> getQryResults(String q, String[] parameters){
+			this.query="USE "+Db.db+" "+q;
 			this.parameters=parameters;
 			this.executeQry();
-			return this.results;
+			return this.qryResults;
 		}
 		// get the ResultSetMetaData
-		public ResultSetMetaData getRsmd(){
+		public final ResultSetMetaData getRsmd(){
 			return this.rsmd;
 		}
 		
 		// get the ResultSet
-		public ResultSet getRs() {
+		public final ResultSet getRs() {
 			return this.resultSet;
 		}
 		
 		// get the number of columns in the result set
-		public int getNumCols(){
+		public final int getNumCols(){
 			return this.numCols;
 		}
 		
-		public String select(String[] columns){
+		public final String select(String[] columns){
 			return " SELECT "+columns(columns);
 		}
 		
-		public String columns(String[] columns){
+		public final String columns(String[] columns){
 			this.columns = columns;
 			String clmns = columns[0];
 			for(int i=1;i<columns.length;i++){
@@ -150,23 +157,64 @@ public class DAL {
 			return clmns;
 		}
 		
-		public String from(String table){
+		public final String from(String table){
 			return " FROM "+table;
 		}
 		
-		public String innerJoin(String table){
+		public final String innerJoin(String table){
 			return " INNER JOIN "+table;
 		}
 		
-		public String on(String column1, String column2){
+		public final String on(String column1, String column2){
 			return " ON "+column1+"="+column2;
 		}
 		
-		public String where(String[] columns){
+		public final String where(String[] columns){
 			String where = " WHERE "+columns[0]+"=?";
 			for(int i=1;i<columns.length;i++){
 				where = where+" AND "+columns[i]+"=?";
 			}	
 			return where;
 		}
+		//creates an sql select statements and executes
+		public final String select(DbTable table){
+			String select=this.select(table.columns)+this.from(table.tableName)+this.where(table.primaryKeys);
+			return select;
+		}
+		//creates an sql inner join select and executes query;
+		public final String select(DbTable[] table, String[][] on, String[] where){
+			String[] columns=table[0].columns;
+
+			String innerJoin="";
+			for(int i=1;i<table.length;i++){
+				columns=(String[]) ArrayUtils.addAll(columns,table[i].columns);
+				innerJoin+=this.innerJoin(table[i].tableName)+this.on(on[i-1][0],on[i-1][1]);
+			}
+
+			String select = this.select(columns)+from(table[0].tableName)+innerJoin+this.where(where);
+			return select;
+		}
+		
+		public final void update(HashMap<String, String> valueMap, DbTable table){
+			String update = "UPDATE "+table.tableName+" SET ";
+			int count=0;
+			for(Entry<String, String> entry: valueMap.entrySet()){
+				if(count!=0){
+					update+=",";
+				}
+				if(!Arrays.asList(table.primaryKeys).contains(entry.getKey())){
+					update+=entry.getKey()+"="+entry.getValue();
+					count++;					
+				}
+			}
+			update+=" WHERE ";
+			for(int i=0;i<table.primaryKeys.length;i++){
+				if(i!=0){
+					update+=" AND ";
+				}
+				update+=table.primaryKeys[i]+"="+valueMap.get(table.primaryKeys[i]);
+			}
+			this.getQryResults(update);
+		}
+
 }

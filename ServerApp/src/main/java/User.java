@@ -104,41 +104,29 @@ public class User implements Serializable {
 	}
 	
 	private void setProperties(HashMap<String, String> row){
-		System.out.println("user id"+row.get(DbMap.User.user_id));
-		this.setUser_Id(new Integer(row.get(DbMap.User.user_id)));
-		this.setUser_first_name(row.get(DbMap.User.first_name));
-		this.setUser_last_name(row.get(DbMap.User.last_name));
-		this.setUser_email(row.get(DbMap.User.email));
-		this.setUser_password(row.get(DbMap.User.password));
-		this.setUser_created_at(new Integer(row.get(DbMap.User.created_at)));
-		this.setUser_updated_at(new Integer(row.get(DbMap.User.updated_at)));
-		this.setUser_status_id(new Integer(row.get(DbMap.User.status_id)));
+		System.out.println("user id"+row.get(Db.UserMap.user_id));
+		this.setUser_Id(new Integer(row.get(Db.UserMap.user_id)));
+		this.setUser_first_name(row.get(Db.UserMap.first_name));
+		this.setUser_last_name(row.get(Db.UserMap.last_name));
+		this.setUser_email(row.get(Db.UserMap.email));
+		this.setUser_password(row.get(Db.UserMap.password));
+		this.setUser_created_at(new Integer(row.get(Db.UserMap.created_at)));
+		this.setUser_updated_at(new Integer(row.get(Db.UserMap.updated_at)));
+		this.setUser_status_id(new Integer(row.get(Db.UserMap.status_id)));
 	}
 	
-	public HashMap<String, String> getDbMappedValues(){
+	public HashMap<String, String> getDbpedValues(){
 		HashMap<String, String> userRow = new HashMap<String, String>();
-		userRow.put(DbMap.User.user_id, new Integer(this.getUser_Id()).toString());
-		userRow.put(DbMap.User.first_name, this.getUser_first_name());
-		userRow.put(DbMap.User.last_name, this.getUser_last_name());
-		userRow.put(DbMap.User.email, this.getUser_email());
-		userRow.put(DbMap.User.password, this.getUser_password());
-		userRow.put(DbMap.User.created_at, new Integer(this.getUser_created_at()).toString());
-		userRow.put(DbMap.User.updated_at, new Integer(this.getUser_updated_at()).toString());
-		userRow.put(DbMap.User.status_id, new Integer(this.getUser_status_id()).toString());
+		userRow.put(Db.UserMap.user_id, new Integer(this.getUser_Id()).toString());
+		userRow.put(Db.UserMap.first_name, this.getUser_first_name());
+		userRow.put(Db.UserMap.last_name, this.getUser_last_name());
+		userRow.put(Db.UserMap.email, this.getUser_email());
+		userRow.put(Db.UserMap.password, this.getUser_password());
+		userRow.put(Db.UserMap.created_at, new Integer(this.getUser_created_at()).toString());
+		userRow.put(Db.UserMap.updated_at, new Integer(this.getUser_updated_at()).toString());
+		userRow.put(Db.UserMap.status_id, new Integer(this.getUser_status_id()).toString());
 		
 		return userRow;
 	}
 	
-//	public boolean isUser(){
-//		String q = "SELECT * FROM "+DbMap.User.table_name+" WHERE "+DbMap.User.email+"=? AND "+DbMap.User.password+"= ?";
-//		ArrayList <String> parameters = new ArrayList<String>();
-//		parameters.add(this.getUser_email());
-//		parameters.add(this.getUser_password());
-//		DAL qry = new DAL(q, parameters);
-//		this.setProperties(qry.getResults().get(0));
-//		if(this.getUser_Id()!=0){
-//			return true;
-//		}
-//		return false;
-//	}
 }

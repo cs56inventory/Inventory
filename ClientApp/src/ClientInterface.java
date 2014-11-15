@@ -484,7 +484,6 @@ public class ClientInterface extends JFrame {
 				txtPassword.setText("");
 				lblTable.setText("Viewing Store Products Table");
 
-	
 				contentPane.setVisible(true);
 				setContentPane(contentPane);
 			}//end login else
@@ -510,11 +509,11 @@ public class ClientInterface extends JFrame {
 		model.setColumnIdentifiers(colNames);
 		Store_Product m = new Store_Product();
 
-		for(Entry<?, ?> entry: this.socket.storeProductsMap.entrySet()){
+		for(Entry<?, ?> entry: this.socket.storeProducts.entrySet()){
 			entry.getKey();
 			Store_Product spr = (Store_Product)entry.getValue();
-			Object[] properties = new Object[]{spr.getProduct_upc(),this.socket.productsMap.get(spr.getProduct_upc()).getProduct_name(), 
-					this.socket.productsMap.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
+			Object[] properties = new Object[]{spr.getProduct_upc(),this.socket.products.get(spr.getProduct_upc()).getProduct_name(), 
+					this.socket.products.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
 					spr.getMin_product_quantity()};
 			model.addRow(properties);
 //			table.setModel(model);

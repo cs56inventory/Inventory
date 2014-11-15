@@ -117,30 +117,30 @@ public class Order {
 	
 	private void setProperties(HashMap<String, String> row){
 
-		this.setOrder_id(new Integer(row.get(DbMap.Order.order_id)));
-		this.setStore_id( new Integer(row.get(DbMap.Order.store_id)) );
-		this.setDistributor_id( new Integer(row.get(DbMap.Order.distributor_id)) );
-		this.setOrder_shipping_fee( new Float(row.get(DbMap.Order.shipping_fee)) );
-		this.setOrder_total_price(new Float(row.get(DbMap.Order.total_price)));
-		this.setDistributor_feedback( new Integer(row.get(DbMap.Order.distributor_feedback)) );
-		this.setStore_feedback( new Integer(row.get(DbMap.Order.store_feedback)) );
-		this.setOrder_created_at( new Integer(row.get(DbMap.Order.created_at)) );
-		this.setOrder_updated_at( new Integer(row.get(DbMap.Order.updated_at)) );
-		this.setOrder_status_id( new Integer(row.get(DbMap.Order.status_id)) );
+		this.setOrder_id(new Integer(row.get(Db.OrderMap.order_id)));
+		this.setStore_id( new Integer(row.get(Db.OrderMap.store_id)) );
+		this.setDistributor_id( new Integer(row.get(Db.OrderMap.distributor_id)) );
+		this.setOrder_shipping_fee( new Float(row.get(Db.OrderMap.shipping_fee)) );
+		this.setOrder_total_price(new Float(row.get(Db.OrderMap.total_price)));
+		this.setDistributor_feedback( new Integer(row.get(Db.OrderMap.distributor_feedback)) );
+		this.setStore_feedback( new Integer(row.get(Db.OrderMap.store_feedback)) );
+		this.setOrder_created_at( new Integer(row.get(Db.OrderMap.created_at)) );
+		this.setOrder_updated_at( new Integer(row.get(Db.OrderMap.updated_at)) );
+		this.setOrder_status_id( new Integer(row.get(Db.OrderMap.status_id)) );
 	}
 	
-	public HashMap<String, String> getDbMappedValues(){
+	public HashMap<String, String> getDbpedValues(){
 		HashMap<String, String> orderTable = new HashMap<String, String>();
-		orderTable.put(DbMap.Order.order_id, new Integer(this.getOrder_id()).toString());
-		orderTable.put(DbMap.Order.store_id, new Integer(this.getStore_id()).toString());
-		orderTable.put(DbMap.Order.distributor_id, new Integer(this.getDistributor_id()).toString());
-		orderTable.put(DbMap.Order.shipping_fee, new Float(this.getOrder_shipping_fee()).toString());
-		orderTable.put(DbMap.Order.total_price, new Float(this.getOrder_total_price()).toString());
-		orderTable.put(DbMap.Order.distributor_feedback,  new Integer(this.getDistributor_feedback()).toString());
-		orderTable.put(DbMap.Order.store_feedback,  new Integer(this.getStore_feedback()).toString());
-		orderTable.put(DbMap.Order.created_at,  new Integer(this.getOrder_created_at()).toString());
-		orderTable.put(DbMap.Order.updated_at,  new Integer(this.getOrder_updated_at()).toString());
-		orderTable.put(DbMap.Order.status_id, new Integer(this.getOrder_status_id()).toString());
+		orderTable.put(Db.OrderMap.order_id, new Integer(this.getOrder_id()).toString());
+		orderTable.put(Db.OrderMap.store_id, new Integer(this.getStore_id()).toString());
+		orderTable.put(Db.OrderMap.distributor_id, new Integer(this.getDistributor_id()).toString());
+		orderTable.put(Db.OrderMap.shipping_fee, new Float(this.getOrder_shipping_fee()).toString());
+		orderTable.put(Db.OrderMap.total_price, new Float(this.getOrder_total_price()).toString());
+		orderTable.put(Db.OrderMap.distributor_feedback,  new Integer(this.getDistributor_feedback()).toString());
+		orderTable.put(Db.OrderMap.store_feedback,  new Integer(this.getStore_feedback()).toString());
+		orderTable.put(Db.OrderMap.created_at,  new Integer(this.getOrder_created_at()).toString());
+		orderTable.put(Db.OrderMap.updated_at,  new Integer(this.getOrder_updated_at()).toString());
+		orderTable.put(Db.OrderMap.status_id, new Integer(this.getOrder_status_id()).toString());
 		
 		return orderTable;
 	}

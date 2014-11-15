@@ -19,8 +19,8 @@ public class ClientWebsocketHandler {
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
 	User user = new User();
 	Store store = new Store();
-	LinkedHashMap<Integer, Store_Product> storeProductsMap = new LinkedHashMap<Integer, Store_Product>();
-	LinkedHashMap<Integer, Product> productsMap= new LinkedHashMap<Integer, Product>();
+	LinkedHashMap<Integer, Store_Product> storeProducts = new LinkedHashMap<Integer, Store_Product>();
+	LinkedHashMap<Integer, Product> products= new LinkedHashMap<Integer, Product>();
 	
 	@SuppressWarnings("unused")
 	
@@ -56,7 +56,7 @@ public class ClientWebsocketHandler {
 			@Override
 			public void runMethod(Object o) {
 				if(o instanceof LinkedHashMap<?, ?>){
-					productsMap.putAll((LinkedHashMap<Integer, Product>)o);
+					products.putAll((LinkedHashMap<Integer, Product>)o);
 				}
 			}
 		});
@@ -65,9 +65,9 @@ public class ClientWebsocketHandler {
 
 			@Override
 			public void runMethod(Object o) {
-				storeProductsMap = (LinkedHashMap<Integer, Store_Product>)o;
+				storeProducts = (LinkedHashMap<Integer, Store_Product>)o;
 
-				System.out.println("store products "+storeProductsMap.values().toArray());
+				System.out.println("store products "+storeProducts.values().toArray());
 				clientInterface.fillStoreProducts();
 			}
 		});		
