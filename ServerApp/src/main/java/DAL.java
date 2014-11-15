@@ -14,10 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Properties;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang.ArrayUtils;
-
-
 
 
 public class DAL {
@@ -104,8 +101,6 @@ public class DAL {
 					LinkedHashMap<String, String> row = new LinkedHashMap<String, String>(this.numCols);
 					
 				   for(int i=0; i<this.numCols; ++i){ 
-				  	 System.out.println(i+" Column name: "+this.columns[i]+" table name "+ rsmd.getTableName(i+1));
-
 				  	 String key = this.columns[i];
 				  	 row.put(key,this.resultSet.getString(i+1));
 				   }
@@ -176,12 +171,17 @@ public class DAL {
 			}	
 			return where;
 		}
-		//creates an sql select statements and executes
+		//creates an sql select statements
 		public final String select(DbTable table){
 			String select=this.select(table.columns)+this.from(table.tableName)+this.where(table.primaryKeys);
 			return select;
 		}
-		//creates an sql inner join select and executes query;
+		//creates an sql select statement given a tabe name and condition keys
+		public final String select(DbTable table, String[] keys){
+			String select=this.select(table.columns)+this.from(table.tableName)+this.where(keys);
+			return select;
+		}
+		//creates an sql inner join select statement;
 		public final String select(DbTable[] table, String[][] on, String[] where){
 			String[] columns=table[0].columns;
 
@@ -195,7 +195,7 @@ public class DAL {
 			return select;
 		}
 		
-		public final void update(HashMap<String, String> valueMap, DbTable table){
+		public final String update(HashMap<String, String> valueMap, DbTable table){
 			String update = "UPDATE "+table.tableName+" SET ";
 			int count=0;
 			for(Entry<String, String> entry: valueMap.entrySet()){
@@ -214,7 +214,7 @@ public class DAL {
 				}
 				update+=table.primaryKeys[i]+"="+valueMap.get(table.primaryKeys[i]);
 			}
-			this.getQryResults(update);
+			return update;
 		}
 
 }

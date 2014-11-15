@@ -60,7 +60,7 @@ public class ServerWebSocketHandler extends Db {
 	}
 
 	@OnWebSocketMessage
-	public void onMessage(byte[] data, int offset, int lenght) {
+	public void onMessage(byte[] data, int offset, int length) {
 
 		Object receivedObject = unwrapReceivedMessage(data);
 		if (receivedObject instanceof ObjectWrapper) {
@@ -68,27 +68,23 @@ public class ServerWebSocketHandler extends Db {
 			String _message = (String) (wrappedObject.getKey());
 			Object unwrappedObject = wrappedObject.getObj();
 			System.out.println("Server Receved New Message:  " + _message);
-			System.out.println("bytes:  " + data);
-			System.out.println("offset:  " + offset);
-			System.out.println("lenght:  " + lenght);
-			System.out.println("message:  " + lenght);
+	
 			this.handlerMethods.getOrDefault(_message, new CommandAdapter() {
 				@Override
 				public void runMethod() {
-					System.out.println("refusing:  ");
+					System.out.println("refusing connection:  ");
 					refuseConnection();
 				}
 			}).runMethod(unwrappedObject);
 		} else {
 			refuseConnection();
 		}
-		System.out.println("Bytes:  " + data);
 	}
 
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
 
-		System.out.println("Message:  " + msg);
+		System.out.println("Received Message:  " + msg);
 		this.handlerMethods.getOrDefault(msg, new CommandAdapter() {
 			@Override
 			public void runMethod() {
@@ -121,7 +117,9 @@ public class ServerWebSocketHandler extends Db {
 		if (receivedObject instanceof User) {
 			this.user = (User) receivedObject;
 			this.getUserStoreMemberStore();
+
 			if (this.user != null && this.user.getUser_Id() != 0) {
+
 				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
 				
 				this.send("login", this.user);
@@ -137,12 +135,13 @@ public class ServerWebSocketHandler extends Db {
 						this.send("store_products", this.storeProducts);
 					}
 				}
+				this.getStoreOrders();
 			} 
 			else {
 
 			}
 			
-			this.getOrders();
+			
 			if(!this.orders.isEmpty()){
 				if(!this.products.isEmpty()){
 					this.send("products", this.products);
