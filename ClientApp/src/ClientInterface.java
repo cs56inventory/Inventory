@@ -1,4 +1,5 @@
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,8 +33,18 @@ public class ClientInterface extends JFrame {
 	private final JTextField txtEmail = new JTextField();
 	private final JTextField txtPassword = new JTextField();
 	private final JButton btnLogin = new JButton("Login");
-	private final JTable table = new JTable();
-	private final JScrollPane scrollPane = new JScrollPane(table);
+	
+	//tables and their scroll panes
+	//3 tables: products, orders placed, orders details
+	private final JTable tableProducts = new JTable();
+	private final JScrollPane scrollPaneProducts = new JScrollPane(tableProducts);
+	
+	private final JTable tableOrdersPlaced = new JTable();
+	private final JScrollPane scrollPaneOrdersPlaced = new JScrollPane(tableOrdersPlaced);
+	
+	private final JTable tableOrdersDetails = new JTable();
+	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
+	
 	private final JButton btnLogout = new JButton("Logout");
 	private DefaultTableModel model=null;
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
@@ -66,7 +77,7 @@ public class ClientInterface extends JFrame {
 //		EventQueue.invokeLater(new Runnable() {
 //			public void run() {
 //				try {
-//					storeInterface frame = new storeInterface();
+//					ClientInterface frame = new ClientInterface(app);
 //					frame.setVisible(true);
 //				} catch (Exception e) {
 //					e.printStackTrace();
@@ -76,7 +87,9 @@ public class ClientInterface extends JFrame {
 //	}//end main
 
 	public ClientInterface(ClientApp clientApp) {
-		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		txtPassword.setBounds(270, 202, 289, 40);
 		txtPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		txtPassword.setColumns(10);
@@ -102,17 +115,29 @@ public class ClientInterface extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//dimensions of outer jframe
-		setBounds(100, 100, 818, 512);
+		setBounds(100, 100, 1280, 654);
 		
 		//content pane within jframe holds components
 		contentPane = new JPanel();
 		loginPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//contentPane.setVisible(true);
 		//setContentPane(contentPane);
 		setContentPane(loginPane);
-		scrollPane.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		scrollPane.setBounds(20, 154, 761, 309);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		//dimensions for table scroll panes
+		scrollPaneProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneProducts.setBounds(20, 154, 600, 200);
+		scrollPaneProducts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		scrollPaneOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneOrdersPlaced.setBounds(640, 154, 600, 200);
+		scrollPaneOrdersPlaced.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		scrollPaneOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		scrollPaneOrdersDetails.setBounds(20, 374, 600, 200);
+		scrollPaneOrdersDetails.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
 		btnViewStores.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnViewStores.setBounds(629, 68, 152, 44);
 		setVisible(true);
@@ -146,7 +171,7 @@ public class ClientInterface extends JFrame {
 					model.setColumnIdentifiers(oldCols);
 					String[] colNames = {"Store ID", "Name", "Address", "City", "State", "Zip", "Phone"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					while(rs.next()){
@@ -157,7 +182,7 @@ public class ClientInterface extends JFrame {
 						model.addRow(objects);
 					}//end while
 
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing all stores:");
 				
 					dbc.closeConn();
@@ -201,7 +226,7 @@ public class ClientInterface extends JFrame {
 					//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 					String[] colNames = {"Dist. ID", "Name"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -212,7 +237,7 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing all distributors:");
 					//close connection
 					dbc.closeConn();
@@ -261,7 +286,7 @@ public class ClientInterface extends JFrame {
 					//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 					String[] colNames = {"UPC", "Name", "Description", "Distributor", "Qty"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -272,14 +297,14 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					
 //					******************
 //					******************
-//					JTable Cell Click Event
+//					JTable Cell Click Event (for tableProducts)
 //					******************
 //					******************
-					table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+					tableProducts.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 //							from stackoverflow.com on 11/2/14
 				        	public void valueChanged(ListSelectionEvent event) {
 //				        		each change in direction of the mouse button constitutes a change in value, so one click will open
@@ -287,21 +312,21 @@ public class ClientInterface extends JFrame {
 				        		valueChangedCount += 1;
 				        		if(valueChangedCount % 2 != 0){
 				        		try{						        	
-			        				rowID = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+			        				rowID = Integer.parseInt(tableProducts.getValueAt(tableProducts.getSelectedRow(), 0).toString());
 			        				try{
-						        		name = (table.getValueAt(table.getSelectedRow(), 1).toString());
+						        		name = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 1).toString());
 						        	}catch(NullPointerException ex){
 			        					name = "Not entered";
 			        				}try{
-			        					desc = (table.getValueAt(table.getSelectedRow(), 2).toString());
+			        					desc = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 2).toString());
 			        				}catch(NullPointerException ex){
 			        					desc = "Not entered";
 			        				}try{
-			        					dist = (table.getValueAt(table.getSelectedRow(), 3).toString());
+			        					dist = (tableProducts.getValueAt(tableProducts.getSelectedRow(), 3).toString());
 			        				}catch(NullPointerException ex){
 			        					dist = "Not entered";
 			        				}try{
-			        					qty = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 4).toString());
+			        					qty = Integer.parseInt(tableProducts.getValueAt(tableProducts.getSelectedRow(), 4).toString());
 			        				}catch(NullPointerException ex){
 			        					qty = -1;
 			        				}
@@ -361,7 +386,7 @@ public class ClientInterface extends JFrame {
 					model.setColumnIdentifiers(oldCols);
 					String[] colNames = {"UPC", "Store ID", "Name", "Description", "Price", "Qty", "Min Qty"};
 					
-					model = (DefaultTableModel) table.getModel();
+					model = (DefaultTableModel) tableProducts.getModel();
 					model.setColumnIdentifiers(colNames);
 					
 					//fill jtable with rows from result set
@@ -372,7 +397,7 @@ public class ClientInterface extends JFrame {
 						}
 						model.addRow(objects);
 					}//end while
-					table.setModel(model);
+					tableProducts.setModel(model);
 					lblTable.setText("Viewing this store's products:");
 			//close connection
 				dbc.closeConn();
@@ -412,7 +437,9 @@ public class ClientInterface extends JFrame {
 								setContentPane(loginPane);
 							}//end mouseClicked
 						});
-		contentPane.add(scrollPane);
+		contentPane.add(scrollPaneProducts);
+		contentPane.add(scrollPaneOrdersPlaced);
+		contentPane.add(scrollPaneOrdersDetails);
 		lblLoginStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblLoginStatus.setBounds(20, 129, 172, 23);
 		contentPane.add(lblLoginStatus);
@@ -505,7 +532,7 @@ public class ClientInterface extends JFrame {
 	public void fillStoreProducts(){
 	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 		String[] colNames = {"Product UPC", "Name", "Description", "Price", "Qty", "Min Qty"};
-		model = (DefaultTableModel) table.getModel();
+		model = (DefaultTableModel) tableProducts.getModel();
 		model.setColumnIdentifiers(colNames);
 		Store_Product m = new Store_Product();
 
@@ -516,10 +543,10 @@ public class ClientInterface extends JFrame {
 					this.socket.products.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
 					spr.getMin_product_quantity()};
 			model.addRow(properties);
-//			table.setModel(model);
+//			tableProducts.setModel(model);
 		}
 
-//		table.
+//		tableProducts.
 
 	}
 }//end JFrame class
