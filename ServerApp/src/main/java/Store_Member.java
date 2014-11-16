@@ -71,7 +71,7 @@ public class Store_Member implements Serializable{
 
 	}
 	
-	public HashMap<String, String> getDbpedValues(){
+	public HashMap<String, String> getDbMappedValues(){
 		HashMap<String, String> stoeMemberTable = new HashMap<String, String>();
 		stoeMemberTable.put(Db.StoreMemberMap.user_id, new Integer(this.getUser_id()).toString());
 		stoeMemberTable.put(Db.StoreMemberMap.store_id, new Integer(this.getStore_id()).toString());
@@ -80,16 +80,5 @@ public class Store_Member implements Serializable{
 		
 		return stoeMemberTable;
 	}
-	
-//	public boolean isStore_member(){
-//		String q = "SELECT * FROM "+Db.Store_member.table_name+" WHERE "+Db.Store_member.user_id+"=?";
-//		ArrayList <String> parameters = new ArrayList<String>();
-//		parameters.add(new Integer(this.getUser_id()).toString());
-//		DAL qry = new DAL(q, parameters);
-//		this.setProperties(qry.getResults().get(0));
-//		if(this.getStore_id()!=0){
-//			return true;
-//		}
-//		return false;
-//	}
+
 }

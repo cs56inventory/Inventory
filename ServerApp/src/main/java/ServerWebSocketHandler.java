@@ -17,7 +17,11 @@ public class ServerWebSocketHandler extends Db {
 
 	private Session session;
 	private HashMap<String, Command> handlerMethods = new HashMap<String, Command>();
-
+	/*
+	 * Constructor
+	 * Links the keys to handler methods
+	 * 
+	 */
 	public ServerWebSocketHandler() {
 		super();
 		handlerMethods.put("login", new CommandAdapter() {
@@ -28,7 +32,13 @@ public class ServerWebSocketHandler extends Db {
 			}
 		});
 
-		System.out.println("init: code ");
+		handlerMethods.put("update_store_product", new CommandAdapter() {
+
+			@Override
+			public void runMethod(Object o) {
+				updateStoreProduct(o);
+			}
+		});
 	}
 
 	@OnWebSocketClose
@@ -58,7 +68,12 @@ public class ServerWebSocketHandler extends Db {
 		// }
 		// }, 5000, 5000);
 	}
-
+	
+	private void refuseConnection() {
+		System.out.println("refusing connection:  ");
+		this.send("connection refused");
+	}
+	
 	@OnWebSocketMessage
 	public void onMessage(byte[] data, int offset, int length) {
 
@@ -83,7 +98,7 @@ public class ServerWebSocketHandler extends Db {
 
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
-
+		
 		System.out.println("Received Message:  " + msg);
 		this.handlerMethods.getOrDefault(msg, new CommandAdapter() {
 			@Override
@@ -93,6 +108,31 @@ public class ServerWebSocketHandler extends Db {
 		}).runMethod();
 	}
 
+	private void send(String key, Object object) {
+		
+		ObjectWrapper data = new ObjectWrapper(key, object);
+		try {
+			System.out.println("Sending an object with key: " + key);
+			this.session.getRemote().sendBytes(data.getBuffer());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void send(String message) {
+		
+		try {
+			System.out.println("Sending the following message: " + message);
+			this.session.getRemote().sendString(message);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+/*
+ * Received data decoder
+ */
 	public Object unwrapReceivedMessage(byte[] byts) {
 
 		ObjectInputStream istream = null;
@@ -103,7 +143,6 @@ public class ServerWebSocketHandler extends Db {
 
 			if (obj instanceof ObjectWrapper) {
 				String _message = (String) ((ObjectWrapper) obj).getKey();
-				System.out.println("Server Receved New Message:  " + _message);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -113,6 +152,12 @@ public class ServerWebSocketHandler extends Db {
 		return obj;
 	}
 
+	
+	/*****************************************
+	 * 
+	 *  BEGIN HANDLER METHODS
+	 * 
+	 *****************************************/
 	private void login(Object receivedObject) {
 		if (receivedObject instanceof User) {
 			this.user = (User) receivedObject;
@@ -120,7 +165,7 @@ public class ServerWebSocketHandler extends Db {
 
 			if (this.user != null && this.user.getUser_Id() != 0) {
 
-				ServerApp.userMap.put(this.user.getUser_Id(), this.session);
+				ServerApp.userMap.put(this.user.getUser_Id(), this);
 				
 				this.send("login", this.user);
 				// return user products, orders
@@ -138,15 +183,34 @@ public class ServerWebSocketHandler extends Db {
 				this.getStoreOrders();
 			} 
 			else {
+				this.getUserDistributorMemberDistributor();
+				if (this.user != null && this.user.getUser_Id() != 0) {
 
+					ServerApp.userMap.put(this.user.getUser_Id(), this.session);
+					
+					this.send("login", this.user);
+					// return user products, orders
+
+					if (this.distributor_member!=null && this.distributor_member.getDistributor_id() != 0 && this.distributor !=null && this.distributor.getDistributor_id()!=0) {
+						
+						this.send("distributor", distributor);
+						this.getDistributorProducts();
+						if(!this.products.isEmpty() && !this.distributorProducts.isEmpty()){
+							
+							this.send("products", this.products);
+							this.send("distributor_products", this.distributorProducts);
+						}
+					}
+					this.getDistributorOrders();
+				} 
 			}
-			
 			
 			if(!this.orders.isEmpty()){
 				if(!this.products.isEmpty()){
 					this.send("products", this.products);
 				}
 				this.send("orders", this.orders);
+				this.send("order_products", this.orderProducts);
 			}
 		} 
 		else {
@@ -154,31 +218,46 @@ public class ServerWebSocketHandler extends Db {
 		}
 		;
 	};
-
-	private void refuseConnection() {
-		System.out.println("refusing connection:  ");
-		this.send("connection refused");
-	}
-
-	private void send(String key, Object object) {
-		ObjectWrapper data = new ObjectWrapper(key, object);
-		try {
-			System.out.println("Sending an object with key: " + key);
-			this.session.getRemote().sendBytes(data.getBuffer());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	
+	public void updateStoreProduct(Object receivedObject){
+		if (receivedObject instanceof Store_Product) {
+			Store_Product sp = (Store_Product)receivedObject;
+			this.update(sp.getDbMappedValues(), new Db.StoreProductMap());
+			this.storeProducts.put(sp.getProduct_upc(), sp);
+			if(sp.getStore_product_quantity()<sp.getMin_product_quantity()){
+				Product_Distributor_Store pds = this.getStoreProductContract(sp.getProduct_upc());
+				if(pds!=null){
+					Float productTotalPrice = pds.getPds_product_unit_price()*pds.getMin_quantity();
+					Order newOrder = new Order(pds.getStore_id(),pds.getDistributor_id(),pds.getPds_product_shipping_fee(), productTotalPrice);
+					int newOrderId = this.insert(newOrder.getDbMappedValues(), new Db.OrderMap());
+					if(newOrderId>0){
+						newOrder.setOrder_id(newOrderId);
+						Order_Product op = new Order_Product(newOrder.getOrder_id(),pds.getProduct_upc(),pds.getMin_quantity(),productTotalPrice);
+						this.insert(op.getDbMappedValues(), new Db.OrderProductMap());
+						ArrayList<LinkedHashMap<String, String>> qryResults = this.getDistributorMembers(pds.getDistributor_id());
+						if (!qryResults.isEmpty()) {
+							try{
+								for (int i = 0; i < qryResults.size(); i++) {
+									HashMap<String, String> row = qryResults.get(i);
+									Distributor_Member distributor_member = new Distributor_Member(row);
+									if(ServerApp.userMap.containsKey(distributor_member.getUser_id())){
+										ServerWebSocketHandler distributorMemberSocket = (ServerWebSocketHandler)ServerApp.userMap.get(distributor_member.getUser_id());
+										distributorMemberSocket.send("order", newOrder);
+									}
+								}		
+							}
+							catch(Exception ex){
+								System.out.println(ex);
+							}
+						}			
+					}
+				}
+			}
 		}
 	}
-
-	private void send(String message) {
-		try {
-			System.out.println("Sending the following message: " + message);
-			this.session.getRemote().sendString(message);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
+	/*****************************************
+	 * 
+	 * END HANDLER METHODS
+	 * 
+	 *****************************************/
 }

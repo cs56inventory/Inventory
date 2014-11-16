@@ -115,7 +115,7 @@ public class User implements Serializable {
 		this.setUser_status_id(new Integer(row.get(Db.UserMap.status_id)));
 	}
 	
-	public HashMap<String, String> getDbpedValues(){
+	public HashMap<String, String> getDbMappedValues(){
 		HashMap<String, String> userRow = new HashMap<String, String>();
 		userRow.put(Db.UserMap.user_id, new Integer(this.getUser_Id()).toString());
 		userRow.put(Db.UserMap.first_name, this.getUser_first_name());

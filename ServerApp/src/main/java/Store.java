@@ -113,18 +113,18 @@ public class Store implements Serializable{
 		this.setStore_status_id(new Integer(row.get(Db.StoreMap.status_id)));
 	}
 	
-	public HashMap<String, String> getDbpedValues(){
-		HashMap<String, String> stoeTable = new HashMap<String, String>();
-		stoeTable.put(Db.StoreMap.store_id, new Integer(this.getStore_id()).toString());
-		stoeTable.put(Db.StoreMap.name, this.getStore_name());
-		stoeTable.put(Db.StoreMap.street_address, this.getStore_street_address());
-		stoeTable.put(Db.StoreMap.city, this.getStore_city());
-		stoeTable.put(Db.StoreMap.state, this.getStore_state());
-		stoeTable.put(Db.StoreMap.zip_code, this.getStore_zip_code());
-		stoeTable.put(Db.StoreMap.phone_number, this.getStore_name());
-		stoeTable.put(Db.StoreMap.status_id, new Integer(this.getStore_status_id()).toString());
+	public HashMap<String, String> getDbMappedValues(){
+		HashMap<String, String> storeTable = new HashMap<String, String>();
+		storeTable.put(Db.StoreMap.store_id, new Integer(this.getStore_id()).toString());
+		storeTable.put(Db.StoreMap.name, this.getStore_name());
+		storeTable.put(Db.StoreMap.street_address, this.getStore_street_address());
+		storeTable.put(Db.StoreMap.city, this.getStore_city());
+		storeTable.put(Db.StoreMap.state, this.getStore_state());
+		storeTable.put(Db.StoreMap.zip_code, this.getStore_zip_code());
+		storeTable.put(Db.StoreMap.phone_number, this.getStore_name());
+		storeTable.put(Db.StoreMap.status_id, new Integer(this.getStore_status_id()).toString());
 		
-		return stoeTable;
+		return storeTable;
 	}
 	
 }

@@ -18,7 +18,6 @@ public class Order_Product implements Serializable{
 	}
 	public Order_Product(HashMap<String, String> row){
 
-		this.setProperties(row);
 	}
 
 	public Order_Product(int order_id, int product_upc, int order_product_quantity, float order_product_total_price){
@@ -53,21 +52,5 @@ public class Order_Product implements Serializable{
 	public void setOrder_product_total_price(float order_product_total_price) {
 		this.order_product_total_price = order_product_total_price;
 	}
-	private void setProperties(HashMap<String, String> row) {
 
-		this.setOrder_id( new Integer(row.get(Db.OrderProductMap.order_id)) );
-		this.setProduct_upc( new Integer(row.get(Db.OrderProductMap.product_upc)) );
-		this.setOrder_product_quantity( new Integer(row.get(Db.OrderProductMap.quantity)) );
-		this.setOrder_product_total_price( new Float(row.get(Db.OrderProductMap.totalPrice)) );
-
-	}
-	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> stoeProductTable = new HashMap<String, String>();
-		stoeProductTable.put(Db.OrderProductMap.order_id, new Integer(this.getOrder_id()).toString());
-		stoeProductTable.put(Db.OrderProductMap.product_upc, new Integer(this.getProduct_upc()).toString());
-		stoeProductTable.put(Db.OrderProductMap.quantity, new Integer(this.getOrder_product_quantity()).toString());
-		stoeProductTable.put(Db.OrderProductMap.totalPrice, new Float(this.getOrder_product_total_price()).toString());
-		
-		return stoeProductTable;
-	}
 }

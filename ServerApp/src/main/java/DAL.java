@@ -8,12 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
+
 import org.apache.commons.lang.ArrayUtils;
 
 
@@ -92,6 +94,59 @@ public class DAL {
 		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
 			}
 		}
+	
+		private int executeUpdate(){
+			int results = 0;
+			try {
+				connection = DriverManager.getConnection(conn);
+				this.preparedStatement = connection.prepareStatement(this.query);
+				if(parameters.length!=0){
+					for(int i=0;i<parameters.length;i++){
+						this.preparedStatement.setString(i+1, parameters[i]);
+					}
+				}
+				System.out.println("Executing Query "+this.preparedStatement);
+				results = this.preparedStatement.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finally {
+		    try { this.resultSet.close(); } catch (Exception e) { /* ignored */ }
+		    try { this.preparedStatement.close(); } catch (Exception e) { /* ignored */ }
+		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
+			}
+			return results;
+		}
+		
+		private int executeInsert(){
+			int results = 0;
+			try {
+				connection = DriverManager.getConnection(conn);
+				this.preparedStatement = connection.prepareStatement(this.query,Statement.RETURN_GENERATED_KEYS);
+				if(parameters.length!=0){
+					for(int i=0;i<parameters.length;i++){
+						this.preparedStatement.setString(i+1, parameters[i]);
+					}
+				}
+				System.out.println("Executing Query "+this.preparedStatement);
+				results = this.preparedStatement.executeUpdate();
+				ResultSet generatedKeys = this.preparedStatement.getGeneratedKeys();
+				if(generatedKeys.next()){
+					results=generatedKeys.getInt(1);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finally {
+		    try { this.resultSet.close(); } catch (Exception e) { /* ignored */ }
+		    try { this.preparedStatement.close(); } catch (Exception e) { /* ignored */ }
+		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
+			}
+			return results;
+		}
 		
 		private void setResults() throws SQLException{
 			
@@ -112,38 +167,50 @@ public class DAL {
 			}
 		}
 
-		public final ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
-			this.query=q;
+		protected final ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
+			this.query="USE "+Db.db+" "+q;
 			this.executeQry();
 			return this.qryResults;
 		}
 		
-		public final ArrayList<LinkedHashMap<String, String>> getQryResults(String q, String[] parameters){
+		protected final ArrayList<LinkedHashMap<String, String>> getQryResults(String q, String[] parameters){
 			this.query="USE "+Db.db+" "+q;
 			this.parameters=parameters;
 			this.executeQry();
 			return this.qryResults;
 		}
+		
+		protected final int getUpdateResults(String q, String[] parameters){
+			this.query="USE "+Db.db+" "+q;
+			this.parameters=parameters;
+			return this.executeUpdate();
+		}
+		
+		protected final int getInsertResults(String q, String[] parameters){
+			this.query="USE "+Db.db+" "+q;
+			this.parameters=parameters;
+			return this.executeInsert();
+		}
 		// get the ResultSetMetaData
-		public final ResultSetMetaData getRsmd(){
+		protected final ResultSetMetaData getRsmd(){
 			return this.rsmd;
 		}
 		
 		// get the ResultSet
-		public final ResultSet getRs() {
+		protected final ResultSet getRs() {
 			return this.resultSet;
 		}
 		
 		// get the number of columns in the result set
-		public final int getNumCols(){
+		protected final int getNumCols(){
 			return this.numCols;
 		}
 		
-		public final String select(String[] columns){
+		protected final String select(String[] columns){
 			return " SELECT "+columns(columns);
 		}
 		
-		public final String columns(String[] columns){
+		protected final String columns(String[] columns){
 			this.columns = columns;
 			String clmns = columns[0];
 			for(int i=1;i<columns.length;i++){
@@ -152,19 +219,19 @@ public class DAL {
 			return clmns;
 		}
 		
-		public final String from(String table){
+		protected final String from(String table){
 			return " FROM "+table;
 		}
 		
-		public final String innerJoin(String table){
+		protected final String innerJoin(String table){
 			return " INNER JOIN "+table;
 		}
 		
-		public final String on(String column1, String column2){
+		protected final String on(String column1, String column2){
 			return " ON "+column1+"="+column2;
 		}
 		
-		public final String where(String[] columns){
+		protected final String where(String[] columns){
 			String where = " WHERE "+columns[0]+"=?";
 			for(int i=1;i<columns.length;i++){
 				where = where+" AND "+columns[i]+"=?";
@@ -172,17 +239,17 @@ public class DAL {
 			return where;
 		}
 		//creates an sql select statements
-		public final String select(DbTable table){
+		protected final String select(DbTable table){
 			String select=this.select(table.columns)+this.from(table.tableName)+this.where(table.primaryKeys);
 			return select;
 		}
 		//creates an sql select statement given a tabe name and condition keys
-		public final String select(DbTable table, String[] keys){
+		protected final String select(DbTable table, String[] keys){
 			String select=this.select(table.columns)+this.from(table.tableName)+this.where(keys);
 			return select;
 		}
 		//creates an sql inner join select statement;
-		public final String select(DbTable[] table, String[][] on, String[] where){
+		protected final String select(DbTable[] table, String[][] on, String[] where){
 			String[] columns=table[0].columns;
 
 			String innerJoin="";
@@ -194,27 +261,66 @@ public class DAL {
 			String select = this.select(columns)+from(table[0].tableName)+innerJoin+this.where(where);
 			return select;
 		}
+		protected final String[] getParameters(HashMap<String, String> valueMap, DbTable table){
+			String[] parameters = new String[table.primaryKeys.length];
+			for(int i=0;i<table.primaryKeys.length;i++){
+				parameters[i]=valueMap.get(table.primaryKeys[i]);
+			}	
+			return parameters;
+		}
 		
-		public final String update(HashMap<String, String> valueMap, DbTable table){
+		protected final int update(HashMap<String, String> valueMap, DbTable table){
 			String update = "UPDATE "+table.tableName+" SET ";
+			String[]parameters=new String[valueMap.size()];
 			int count=0;
 			for(Entry<String, String> entry: valueMap.entrySet()){
 				if(count!=0){
 					update+=",";
 				}
 				if(!Arrays.asList(table.primaryKeys).contains(entry.getKey())){
-					update+=entry.getKey()+"="+entry.getValue();
+					update+=entry.getKey()+"=?";
+					parameters[count]=entry.getValue();
 					count++;					
 				}
 			}
-			update+=" WHERE ";
-			for(int i=0;i<table.primaryKeys.length;i++){
-				if(i!=0){
-					update+=" AND ";
-				}
-				update+=table.primaryKeys[i]+"="+valueMap.get(table.primaryKeys[i]);
-			}
-			return update;
-		}
+			update = " WHERE "+table.primaryKeys[0]+"=?";
+			parameters[count]=valueMap.get(table.primaryKeys[0]);
+			count++;
+			for(int i=1;i<table.primaryKeys.length;i++){
+				update = update+" AND "+columns[i]+"=?";
+				parameters[count]=valueMap.get(table.primaryKeys[i]);
+				count++;
+			}	
 
+			return this.getUpdateResults(update, parameters);
+		}
+		
+		protected final int insert(HashMap<String, String> valueMap, DbTable table){
+			String insert = "INSERT INTO "+table.tableName+"(";
+			String[]parameters=new String[valueMap.size()];
+			int count=0;
+			String valuesPlaceholder =") VALUES(";
+			for(Entry<String, String> entry: valueMap.entrySet()){
+				if(count!=0){
+					insert+=",";
+					valuesPlaceholder+=",";
+				}
+				if(!Arrays.asList(table.primaryKeys).contains(entry.getKey())){
+					insert+=entry.getKey();
+					valuesPlaceholder+="?";
+					parameters[count]=entry.getValue();
+					count++;					
+				}
+			}
+			insert += valuesPlaceholder+") WHERE "+table.primaryKeys[0]+"=?";
+			parameters[count]=valueMap.get(table.primaryKeys[0]);
+			count++;
+			for(int i=1;i<table.primaryKeys.length;i++){
+				insert = insert+" AND "+columns[i]+"=?";
+				parameters[count]=valueMap.get(table.primaryKeys[i]);
+				count++;
+			}	
+
+			return this.getUpdateResults(insert, parameters);
+		}
 }

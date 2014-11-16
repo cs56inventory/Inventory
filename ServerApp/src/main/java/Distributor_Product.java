@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 
 public class Distributor_Product {
 	private int distributor_id;
@@ -8,7 +10,11 @@ public class Distributor_Product {
 	public Distributor_Product(){
 		
 	}
-	
+	public Distributor_Product(HashMap<String, String> row){
+
+		this.setProperties(row);
+	}
+
 	public Distributor_Product(int distributor_id, int product_upc, int distributor_product_quantity, int distributor_product_status_Id){
 		this.distributor_id = distributor_id;
 		this.product_upc = product_upc;
@@ -40,5 +46,22 @@ public class Distributor_Product {
 	public void setDistributor_product_status_Id(int distributor_product_status_Id) {
 		this.distributor_product_status_Id = distributor_product_status_Id;
 	}
+	private void setProperties(HashMap<String, String> row) {
+
+		this.setDistributor_id( new Integer(row.get(Db.DistributorProductMap.distributor_id)) );
+		this.setProduct_upc( new Integer(row.get(Db.DistributorProductMap.product_upc)) );
+		this.setDistributor_product_quantity( new Integer(row.get(Db.DistributorProductMap.quantity)) );
+		this.setDistributor_product_status_Id( new Integer(row.get(Db.DistributorProductMap.status_id)) );
+	}
 	
+	public HashMap<String, String> getDbMappedValues(){
+		HashMap<String, String> distributorProductTable = new HashMap<String, String>();
+		distributorProductTable.put(Db.DistributorProductMap.distributor_id, new Integer(this.getDistributor_id()).toString());
+		distributorProductTable.put(Db.DistributorProductMap.product_upc, new Integer(this.getProduct_upc()).toString());
+		distributorProductTable.put(Db.DistributorProductMap.quantity, new Integer(this.getDistributor_product_quantity()).toString());
+		distributorProductTable.put(Db.DistributorProductMap.status_id, new Integer(this.getDistributor_product_status_Id()).toString());
+
+		
+		return distributorProductTable;
+	}
 }

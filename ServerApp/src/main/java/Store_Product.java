@@ -91,15 +91,15 @@ public class Store_Product implements Serializable{
 	}
 	
 	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> stoeProductTable = new HashMap<String, String>();
-		stoeProductTable.put(Db.StoreProductMap.store_id, new Integer(this.getStore_id()).toString());
-		stoeProductTable.put(Db.StoreProductMap.product_upc, new Integer(this.getProduct_upc()).toString());
-		stoeProductTable.put(Db.StoreProductMap.quantity, new Integer(this.getStore_product_quantity()).toString());
-		stoeProductTable.put(Db.StoreProductMap.price, new Float(this.getStore_product_price()).toString());
-		stoeProductTable.put(Db.StoreProductMap.min_quantity, new Integer(this.getMin_product_quantity()).toString());
-		stoeProductTable.put(Db.StoreProductMap.status_id, new Integer(this.getStore_product_status_id()).toString());
+		HashMap<String, String> storeProductTable = new HashMap<String, String>();
+		storeProductTable.put(Db.StoreProductMap.store_id, new Integer(this.getStore_id()).toString());
+		storeProductTable.put(Db.StoreProductMap.product_upc, new Integer(this.getProduct_upc()).toString());
+		storeProductTable.put(Db.StoreProductMap.quantity, new Integer(this.getStore_product_quantity()).toString());
+		storeProductTable.put(Db.StoreProductMap.price, new Float(this.getStore_product_price()).toString());
+		storeProductTable.put(Db.StoreProductMap.min_quantity, new Integer(this.getMin_product_quantity()).toString());
+		storeProductTable.put(Db.StoreProductMap.status_id, new Integer(this.getStore_product_status_id()).toString());
 
 		
-		return stoeProductTable;
+		return storeProductTable;
 	}
 }

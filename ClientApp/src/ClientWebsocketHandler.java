@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -21,24 +22,38 @@ public class ClientWebsocketHandler {
 	Store store = new Store();
 	LinkedHashMap<Integer, Store_Product> storeProducts = new LinkedHashMap<Integer, Store_Product>();
 	LinkedHashMap<Integer, Product> products= new LinkedHashMap<Integer, Product>();
+	LinkedHashMap<Integer, Order> orders = new LinkedHashMap<Integer, Order>();
+	LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>> orderProducts = new LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>>();
 	
 	@SuppressWarnings("unused")
-	
+	/*
+	 * Constructor
+	 * Links the keys to handler methods in ClientInterface
+	 * 
+	 */
 	public ClientWebsocketHandler(ClientApp app) {
 		this.app = app;
 		this.closeLatch = new CountDownLatch(1);
 		this.clientInterface = app.getInterface();
 		System.out.println("name "+clientInterface.g);
-		
+		//Repeatedly decrease randomly chosen store products' quantities here TODO
 		handlerMethods.put("login", new CommandAdapter(){
-			
+		
 			@Override
 			public void runMethod(Object o) {
 				if(o instanceof User){
 					user = (User)o;
 					System.out.println("userid "+user.getUser_Id());
-					System.out.println("name "+clientInterface.g);
 					clientInterface.login();
+					// Timer timer = new Timer();
+					//
+					// timer.scheduleAtFixedRate(new TimerTask() {
+					// @Override
+					// public void run() {
+					// System.out.println("Hello Again! ");
+					// send("Hello client! ");
+					// }
+					// }, 5000, 5000);
 				}
 			}
 		});	
@@ -71,7 +86,17 @@ public class ClientWebsocketHandler {
 				clientInterface.fillStoreProducts();
 			}
 		});		
-	
+		//add fillOrders method in ClientInterface TODO
+		handlerMethods.put("orders", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+				orders = (LinkedHashMap<Integer, Order>)o;
+
+				System.out.println("store products "+orders.values().toArray());
+//				clientInterface.fillOrders();
+			}
+		});	
 	}
 
 	public boolean awaitClose(int duration, TimeUnit unit) throws InterruptedException {

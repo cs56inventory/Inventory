@@ -56,7 +56,7 @@ public class Product implements Serializable{
 		this.setProduct_description( row.get(Db.ProductMap.description) );
 	}
 	
-	public HashMap<String, String> getDbpedValues(){
+	public HashMap<String, String> getDbMappedValues(){
 		HashMap<String, String> product = new HashMap<String, String>();
 		product.put(Db.ProductMap.upc, new Integer(this.getProduct_upc()).toString());
 		product.put(Db.ProductMap.name, this.getProduct_name());
