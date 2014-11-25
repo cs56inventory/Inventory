@@ -127,8 +127,9 @@ public class ClientWebsocketHandler {
 
 	@OnWebSocketConnect
 	public void onConnect(Session session) {
-		System.out.println("Got connect: %s%n" + session);
+		System.out.println("Connected: %s%n" + session);
 		ClientApp.session = session;
+		clientInterface.enableBtnLogin();
 	}
 	
 	@OnWebSocketMessage

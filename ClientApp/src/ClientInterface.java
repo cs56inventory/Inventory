@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,7 +44,7 @@ public class ClientInterface extends JFrame {
 	private final JTextField txtEmail = new JTextField();
 	private final JTextField txtPassword = new JTextField();
 	private final JButton btnLogin = new JButton("Login");
-	
+	private final JLabel lblConnectionStatus = new JLabel("Connecting...");
 	//tables and their scroll panes
 	//3 tables: products, orders placed, orders details
 	private DefaultTableModel model=null;
@@ -473,6 +474,7 @@ public class ClientInterface extends JFrame {
 		contentPane.setVisible(false);
 		loginPane.setVisible(true);
 		btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 22));
+		btnLogin.setEnabled(false);
 		
 				
 		//		******************
@@ -485,6 +487,7 @@ public class ClientInterface extends JFrame {
 					public void mouseClicked(MouseEvent arg0) {
 						socket = app.getSocket();
 						socket.send( "login", new User(txtEmail.getText(), txtPassword.getText()) );
+						btnLogin.setEnabled(false);
 		
 					}//end mouseClicked
 				});
@@ -502,6 +505,8 @@ public class ClientInterface extends JFrame {
 		loginPane.add(txtEmail);
 		loginPane.add(txtPassword);
 		loginPane.add(btnLogin);
+		lblConnectionStatus.setBounds(10, 10,80,20);
+		loginPane.add(lblConnectionStatus);
 		lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 18));
 //		lblPassword.setHorizontalTextPosition(SwingConstants.LEFT);
 //		lblPassword.setHorizontalAlignment(SwingConstants.LEFT);
@@ -591,6 +596,10 @@ public class ClientInterface extends JFrame {
 				
 			}
 		}, 1000);
+	}
+	public void enableBtnLogin(){
+		btnLogin.setEnabled(true);
+		lblConnectionStatus.setText("Connected");
 	}
 }//end JFrame class
 
