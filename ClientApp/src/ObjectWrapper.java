@@ -12,12 +12,19 @@ public class ObjectWrapper implements Serializable {
 	private static final long serialVersionUID = -3284332358893283862L;
 	private String key;
 	private Object obj;
-
+	private int userId;
 	public ObjectWrapper(String key, Object obj) {
 		this.key = key;
 		this.obj = obj;
 	}
-
+	public ObjectWrapper(int userId, String key, Object obj) {
+		this.userId = userId;
+		this.key = key;
+		this.obj = obj;
+	}
+	public int getUserId() {
+		return userId;
+	}
 	public String getKey() {
 		return key;
 	}

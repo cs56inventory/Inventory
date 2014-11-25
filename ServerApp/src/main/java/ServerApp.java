@@ -19,7 +19,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 
 public class ServerApp {
-	public static final LinkedHashMap<Integer, Object> userMap = new LinkedHashMap<Integer, Object>();
+	static final LinkedHashMap<Integer, ServerWebSocketHandler> userMap = new LinkedHashMap<Integer, ServerWebSocketHandler>();
 	public static void main(String[] args) throws Exception {
 
 		Server server = new Server(8080);	
@@ -112,5 +112,24 @@ public class ServerApp {
 		server.join();
 		
 	}
-
+	static boolean sendToUser(int key, String message, Object object){
+		if(userMap.containsKey(key)){
+			ServerWebSocketHandler memberSocket = userMap.get(key);
+			if(memberSocket!=null){
+				memberSocket.send(message, object);
+				return true;
+			}
+		}
+		return false;
+	}
+	static boolean sendToUser(int key, String message){
+		if(userMap.containsKey(key)){
+			ServerWebSocketHandler memberSocket = userMap.get(key);
+			if(memberSocket!=null){
+				memberSocket.send(message);
+				return true;
+			}
+		}
+		return false;
+	}
 }

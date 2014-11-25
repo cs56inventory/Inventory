@@ -30,6 +30,7 @@ public abstract class Db extends DAL{
 		public StatusMap(){
 			this.tableName = Db.StatusMap.status_table;
 			this.primaryKeys = new String[]{Db.StatusMap.id};
+			this.autoIncrementKeys = new String[]{Db.StatusMap.id};
 			this.columns = new String[]{Db.StatusMap.id, Db.StatusMap.description};		
 		}
 		static final String status_table = "[status_map]";
@@ -41,6 +42,7 @@ public abstract class Db extends DAL{
 		public MemberTypeMap(){
 			this.tableName = Db.MemberTypeMap.member_type_table;
 			this.primaryKeys = new String[]{Db.MemberTypeMap.id};
+			this.autoIncrementKeys = new String[]{Db.MemberTypeMap.id};
 			this.columns = new String[]{Db.MemberTypeMap.id, Db.MemberTypeMap.description};		
 		}
 		static final String member_type_table = "[member_type]";
@@ -52,6 +54,7 @@ public abstract class Db extends DAL{
 		public UserMap(){
 			this.tableName = Db.UserMap.user_table;
 			this.primaryKeys= new String[]{Db.UserMap.user_id};
+			this.autoIncrementKeys = new String[]{Db.UserMap.user_id};
 			this.columns = new String[]{Db.UserMap.user_id, Db.UserMap.first_name, Db.UserMap.last_name,Db.UserMap.email,Db.UserMap.password,
 					Db.UserMap.created_at, Db.UserMap.updated_at,Db.UserMap.status_id,};
 		}
@@ -82,6 +85,7 @@ public abstract class Db extends DAL{
 		public StoreMap(){
 			this.tableName = Db.StoreMap.store_table;
 			this.primaryKeys = new String[]{Db.StoreMap.store_id};
+			this.autoIncrementKeys = new String[]{Db.StoreMap.store_id};
 			this.columns = new String[]{Db.StoreMap.store_id, Db.StoreMap.name, Db.StoreMap.street_address, Db.StoreMap.city,
 				Db.StoreMap.state, Db.StoreMap.zip_code, Db.StoreMap.phone_number, Db.StoreMap.status_id};	
 		}
@@ -115,6 +119,7 @@ public abstract class Db extends DAL{
 		public ProductMap(){
 			this.tableName = Db.ProductMap.product_table;
 			this.primaryKeys = new String[]{Db.ProductMap.upc};
+			this.autoIncrementKeys = new String[]{Db.ProductMap.upc};
 			this.columns = new String[]{Db.ProductMap.upc, Db.ProductMap.name, Db.ProductMap.description};		
 		}
 		static final String product_table = "[product]";
@@ -127,6 +132,7 @@ public abstract class Db extends DAL{
 		public OrderMap(){
 			this.tableName = Db.OrderMap.order_table;
 			this.primaryKeys = new String[]{Db.OrderMap.order_id};
+			this.autoIncrementKeys = new String[]{Db.OrderMap.order_id};
 			this.columns = new String[]{Db.OrderMap.order_id, Db.OrderMap.store_id, Db.OrderMap.distributor_id, Db.OrderMap.shipping_fee,
 				Db.OrderMap.total_price, Db.OrderMap.distributor_feedback,Db.OrderMap.store_feedback, Db.OrderMap.created_at,Db.OrderMap.updated_at,
 				Db.OrderMap.status_id};
@@ -176,6 +182,7 @@ public abstract class Db extends DAL{
 		public DistributorMap(){
 			this.tableName = Db.DistributorMap.distributor_table;
 			this.primaryKeys = new String[]{Db.DistributorMap.id};
+			this.autoIncrementKeys = new String[]{Db.DistributorMap.id};
 			this.columns = new String[]{Db.DistributorMap.id, Db.DistributorMap.name, Db.DistributorMap.status_id};	
 		}
 		static final String distributor_table = "[distributor]";
@@ -218,21 +225,21 @@ public abstract class Db extends DAL{
 	}	
 	
 	public void getUserStoreMemberStore(){
-		
-		String qry = this.select(
+		System.out.println("hello g ");
+		Query q = new Query(this);
+		q.setQuery( q.select(
 				new DbTable[]{new Db.UserMap(),new Db.StoreMemberMap(), new Db.StoreMap()}, 
 				new String[][]{new String[]{Db.UserMap.user_id,Db.StoreMemberMap.user_id},new String[]{Db.StoreMap.store_id,Db.StoreMemberMap.store_id}}, 
 				new String[] {Db.UserMap.email, Db.UserMap.password
-						});
-		String[] parameters = new String[] { user.getUser_email(), user.getUser_password() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(
-				qry, parameters);
-		if (!qryResults.isEmpty()) {
-
+						}) );
+		q.setParameters( new String[] { user.getUser_email(), user.getUser_password() } );
+		;
+		if ( !(q.getQryResults().isEmpty()) ) {
+			System.out.println("hello "+q.getQryResults());
 			try{
-				this.user = new User(qryResults.get(0));
-				this.store_member = new Store_Member(qryResults.get(0));
-				this.store = new Store(qryResults.get(0));
+				this.user = new User(q.qryResults.get(0));
+				this.store_member = new Store_Member(q.qryResults.get(0));
+				this.store = new Store(q.qryResults.get(0));
 			}
 			catch(Exception ex){
 				System.out.println(ex);
@@ -242,21 +249,20 @@ public abstract class Db extends DAL{
 	}
 	
 	public void getUserDistributorMemberDistributor(){
-		
-		String qry = this.select(
+		Query q = new Query(this);
+		q.setQuery( q.select(
 				new DbTable[]{new Db.UserMap(),new Db.DistributorMemberMap(), new Db.DistributorMap()}, 
 				new String[][]{new String[]{Db.UserMap.user_id,Db.DistributorMemberMap.user_id},new String[]{Db.DistributorMap.id,Db.DistributorMemberMap.distributor_id}}, 
 				new String[] {Db.UserMap.email, Db.UserMap.password
-						});
-		String[] parameters = new String[] { user.getUser_email(), user.getUser_password() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(
-				qry, parameters);
-		if (!qryResults.isEmpty()) {
+						}) );
+		q.setParameters(  new String[] { user.getUser_email(), user.getUser_password() } );
+
+		if (!q.getQryResults().isEmpty()) {
 
 			try{
-				this.user = new User(qryResults.get(0));
-				this.distributor_member = new Distributor_Member(qryResults.get(0));
-				this.distributor = new Distributor(qryResults.get(0));
+				this.user = new User(q.qryResults.get(0));
+				this.distributor_member = new Distributor_Member(q.qryResults.get(0));
+				this.distributor = new Distributor(q.qryResults.get(0));
 			}
 			catch(Exception ex){
 				System.out.println(ex);
@@ -264,27 +270,27 @@ public abstract class Db extends DAL{
 			}
 		}
 	}
+	
 	public ArrayList<LinkedHashMap<String, String>> getDistributorMembers(int distributor_id){
-		String qry = select(new Db.DistributorMemberMap(), new String[]{ Db.DistributorMemberMap.distributor_id });
-		String[] parameters = new String[] { new Integer(distributor_id).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
-		return qryResults;
-
+		Query q = new Query(this);
+		q.setQuery( q.select(new Db.DistributorMemberMap(), new String[]{ Db.DistributorMemberMap.distributor_id }) );
+		q.setParameters( new String[] { new Integer(distributor_id).toString() } );
+		return q.getQryResults();
 	}
+	
 	public void getStoreProducts(){
-
-		String qry = this.select(
+		Query q = new Query(this);
+		q.setQuery( q.select(
 				new DbTable[]{new Db.StoreProductMap(),new Db.ProductMap()}, 
 				new String[][]{new String[]{Db.ProductMap.upc,Db.StoreProductMap.product_upc}}, 
 				new String[] {Db.StoreProductMap.store_id
-						});
-		String[] parameters = new String[] { new Integer(store.getStore_id()).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
+						}) );
+		q.setParameters( new String[] { new Integer(store.getStore_id()).toString() } );
 
-		if (!qryResults.isEmpty()) {
+		if (!q.getQryResults().isEmpty()) {
 			try{
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					Store_Product storeProduct = new Store_Product(row);
 					this.storeProducts.put(storeProduct.getProduct_upc(), storeProduct);
 					Product product = new Product(row);
@@ -298,19 +304,18 @@ public abstract class Db extends DAL{
 	}
 	
 	public void getDistributorProducts(){
-
-		String qry = this.select(
+		Query q = new Query(this);
+		q.setQuery( q.select(
 				new DbTable[]{new Db.DistributorProductMap(),new Db.ProductMap()}, 
 				new String[][]{new String[]{Db.ProductMap.upc,Db.DistributorProductMap.product_upc}}, 
 				new String[] {Db.DistributorProductMap.distributor_id
-						});
-		String[] parameters = new String[] { new Integer(distributor.getDistributor_id()).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
+						}) );
+		q.setParameters( new String[] { new Integer(distributor.getDistributor_id()).toString() } );
 
-		if (!qryResults.isEmpty()) {
+		if (!q.getQryResults().isEmpty()) {
 			try{
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					Distributor_Product distributorProduct = new Distributor_Product(row);
 					this.distributorProducts.put(distributorProduct.getProduct_upc(), distributorProduct);
 					Product product = new Product(row);
@@ -324,15 +329,14 @@ public abstract class Db extends DAL{
 	}
 	
 	public void getStoreOrders(){
+		Query q = new Query(this);
+		q.setQuery( q.select(new Db.OrderMap(), new String[]{ Db.OrderMap.store_id }) );
+		q.setParameters( new String[] { new Integer(store.getStore_id()).toString() } );
 
-		String qry = select(new Db.OrderMap(), new String[]{ Db.OrderMap.store_id });
-		String[] parameters = new String[] { new Integer(store.getStore_id())
-				.toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
-		if (!qryResults.isEmpty()) {
+		if (!q.getQryResults().isEmpty()) {
 			try{
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					Order order = new Order(row);
 					this.orders.put(order.getOrder_id(), order);
 					this.getOrderProducts(order.getOrder_id());
@@ -345,14 +349,14 @@ public abstract class Db extends DAL{
 	}
 	
 	public void getDistributorOrders(){
+		Query q = new Query(this);
+		q.setQuery( q.select(new Db.OrderMap(), new String[]{ Db.DistributorMap.id }) );
+		q.setParameters( new String[] { new Integer(distributor.getDistributor_id()).toString() } );
 
-		String qry = select(new Db.OrderMap(), new String[]{ Db.DistributorMap.id });
-		String[] parameters = new String[] { new Integer(distributor.getDistributor_id()).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
-		if (!qryResults.isEmpty()) {
+		if (!q.getQryResults().isEmpty()) {
 			try{
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					Order order = new Order(row);
 					this.orders.put(order.getOrder_id(), order);
 					this.getOrderProducts(order.getOrder_id());
@@ -365,20 +369,19 @@ public abstract class Db extends DAL{
 	}
 	
 	public void getOrderProducts(int orderId){
-
-		String qry = this.select(
+		Query q = new Query(this);
+		q.setQuery( q.select(
 				new DbTable[]{new Db.OrderProductMap(),new Db.ProductMap()}, 
 				new String[][]{new String[]{Db.ProductMap.upc,Db.OrderProductMap.product_upc}}, 
 				new String[] {Db.OrderProductMap.order_id
-						});
-		String[] parameters = new String[] { new Integer(orderId).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
+						}) );
+		q.setParameters( new String[] { new Integer(orderId).toString() } );
 
-		if (!qryResults.isEmpty()) {
+		if (!q.getQryResults().isEmpty()) {
 			try{
 				LinkedHashMap<Integer, Order_Product> op = new LinkedHashMap<Integer, Order_Product>();
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					Order_Product orderProduct = new Order_Product(row);
 					op.put(orderProduct.getProduct_upc(), orderProduct);
 					Product product = new Product(row);
@@ -393,14 +396,15 @@ public abstract class Db extends DAL{
 	}
 	
 	public Product_Distributor_Store getStoreProductContract(int product_upc){
+		Query q = new Query(this);
 		Product_Distributor_Store pds = null;
-		String qry = select(new Db.ProductDistributorStoreMap(), new String[]{ Db.ProductDistributorStoreMap.product_upc, Db.ProductDistributorStoreMap.store_id });
-		String[] parameters = new String[] { new Integer(product_upc).toString(), new Integer(store.getStore_id()).toString() };
-		ArrayList<LinkedHashMap<String, String>> qryResults = this.getQryResults(qry, parameters);
-		if (!qryResults.isEmpty()) {
+		q.setQuery( q.select(new Db.ProductDistributorStoreMap(), new String[]{ Db.ProductDistributorStoreMap.product_upc, Db.ProductDistributorStoreMap.store_id }) );
+		q.setParameters( new String[] { new Integer(product_upc).toString(), new Integer(store.getStore_id()).toString() } );
+
+		if (!q.getQryResults().isEmpty()) {
 			try{
-				for (int i = 0; i < qryResults.size(); i++) {
-					HashMap<String, String> row = qryResults.get(i);
+				for (int i = 0; i < q.qryResults.size(); i++) {
+					HashMap<String, String> row = q.qryResults.get(i);
 					pds = new Product_Distributor_Store(row);
 				}		
 			}

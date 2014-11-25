@@ -3,6 +3,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -45,15 +49,6 @@ public class ClientWebsocketHandler {
 					user = (User)o;
 					System.out.println("userid "+user.getUser_Id());
 					clientInterface.login();
-					// Timer timer = new Timer();
-					//
-					// timer.scheduleAtFixedRate(new TimerTask() {
-					// @Override
-					// public void run() {
-					// System.out.println("Hello Again! ");
-					// send("Hello client! ");
-					// }
-					// }, 5000, 5000);
 				}
 			}
 		});	
@@ -80,21 +75,42 @@ public class ClientWebsocketHandler {
 
 			@Override
 			public void runMethod(Object o) {
-				storeProducts = (LinkedHashMap<Integer, Store_Product>)o;
+				if(o instanceof LinkedHashMap<?, ?>){
+					storeProducts = (LinkedHashMap<Integer, Store_Product>)o;
 
-				System.out.println("store products "+storeProducts.values().toArray());
-				clientInterface.fillStoreProducts();
-			}
+					System.out.println("store products "+storeProducts.values().toArray());
+					clientInterface.fillStoreProducts();
+					
+					startProductQuantityUpdate();
+				}
+			}			
 		});		
 		//add fillOrders method in ClientInterface TODO
 		handlerMethods.put("orders", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
-				orders = (LinkedHashMap<Integer, Order>)o;
+				if(o instanceof LinkedHashMap<?, ?>){
+					orders = (LinkedHashMap<Integer, Order>)o;
 
-				System.out.println("store products "+orders.values().toArray());
-//				clientInterface.fillOrders();
+					System.out.println("store products "+orders.values().toArray());
+//					clientInterface.fillOrders();
+					//create fillOrders method in clientInterface to fill order table --TODO
+				}
+			}
+		});
+		
+		handlerMethods.put("order_update", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+				if(o instanceof Order){
+					Order updatedOrder = (Order)o;
+					orders.put(updatedOrder.getOrder_id(), updatedOrder);
+					System.out.println("Order update received: ");
+//					clientInterface.updateOrder();
+					//create updateOrder method in clientInterface to update order row --TODO
+				}
 			}
 		});	
 	}
@@ -121,7 +137,7 @@ public class ClientWebsocketHandler {
 		Object receivedObject = unwrapReceivedMessage(data);
     if(receivedObject instanceof ObjectWrapper){
     	ObjectWrapper wrappedObject = (ObjectWrapper)receivedObject;
-    	String _message = (String)(wrappedObject.getKey());
+    	String _message = wrappedObject.getKey();
     	Object unwrappedObject = wrappedObject.getObj();
     	System.out.println("New Message:  "+_message);
     	System.out.println("New object: " +wrappedObject.getObj() );
@@ -175,7 +191,8 @@ public class ClientWebsocketHandler {
 	}
 	
 	void send(String key, Object object){
-		ObjectWrapper data = new ObjectWrapper(key, object);
+
+		ObjectWrapper	data = new ObjectWrapper(this.user.getUser_Id(), key, object);
 		try {
 			System.out.println(data.getBuffer());
 			ClientApp.session.getRemote().sendBytes(data.getBuffer());
@@ -184,14 +201,7 @@ public class ClientWebsocketHandler {
 			e.printStackTrace();
 		}
 		catch(NullPointerException e){
-			
-			System.out.println("failed "+this.app.getClient().isFailed());
-			System.out.println("isrunning  "+this.app.getClient().isRunning());
-			System.out.println("stopped  "+this.app.getClient().isStopped());
-			System.out.println("started  "+this.app.getClient().isStarted());
-			System.out.println("isstarting  "+this.app.getClient().isStarting());
 			this.app.createConnection();
-			System.out.println("isstarting  "+this.app.getClient().isStarting());
 		}
 	}
 	
@@ -201,6 +211,36 @@ public class ClientWebsocketHandler {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	private void startProductQuantityUpdate(){
+		 Timer timer = new Timer();
+
+		 timer.scheduleAtFixedRate(new TimerTask() {
+			 @Override
+			 public void run() {
+				 System.out.println("Running product quantity updating timer! ");
+				 decreaseRandomProductQuantity();
+			 }
+		 }, 5000, 5000);		
+	}
+	
+	private void decreaseRandomProductQuantity(){
+		Object[] setArray ;
+		setArray = storeProducts.entrySet().toArray();
+		int randNum = (new Random()).nextInt(setArray.length);
+		Entry<Integer, Store_Product> randomStoreProductEntry= (Entry<Integer, Store_Product>)setArray[randNum];
+		Store_Product randomProduct = randomStoreProductEntry.getValue();
+		int oldQuantity = randomProduct.getStore_product_quantity();
+		System.out.println("Store Product UPC "+randomProduct.getProduct_upc());
+		System.out.println("Old Quantity "+oldQuantity);
+		if(oldQuantity!=0){
+			int newQuantity = oldQuantity-1;
+			randomProduct.setStore_product_quantity(newQuantity);
+			System.out.println("New Quantity "+newQuantity);
+			clientInterface.updateTable(randomProduct);
+			this.send("update_store_product", randomProduct);
 		}
 	}
 }

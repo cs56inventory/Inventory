@@ -1,3 +1,5 @@
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -7,7 +9,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
 import java.util.Map.Entry;
+import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,7 +26,11 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 public class ClientInterface extends JFrame {
 	private ClientApp app;
@@ -36,17 +46,18 @@ public class ClientInterface extends JFrame {
 	
 	//tables and their scroll panes
 	//3 tables: products, orders placed, orders details
-	private final JTable tableProducts = new JTable();
+	private DefaultTableModel model=null;
+	private final RowTable tableProducts = new RowTable(model);
 	private final JScrollPane scrollPaneProducts = new JScrollPane(tableProducts);
-	
-	private final JTable tableOrdersPlaced = new JTable();
+
+	private final RowTable tableOrdersPlaced = new RowTable(model);
 	private final JScrollPane scrollPaneOrdersPlaced = new JScrollPane(tableOrdersPlaced);
 	
 	private final JTable tableOrdersDetails = new JTable();
 	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
 	
 	private final JButton btnLogout = new JButton("Logout");
-	private DefaultTableModel model=null;
+
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
 	private final JButton btnViewStores = new JButton("Stores");
 	private final JButton btnPlaceOrder = new JButton("Place Order");
@@ -543,11 +554,43 @@ public class ClientInterface extends JFrame {
 					this.socket.products.get(spr.getProduct_upc()).getProduct_description(),spr.getStore_product_price(),spr.getStore_product_quantity(),
 					spr.getMin_product_quantity()};
 			model.addRow(properties);
-//			tableProducts.setModel(model);
+
 		}
+	}
+	//updates table
+	public void updateTable(Store_Product p){
+		for(int i=0;i<model.getRowCount();i++){
+			int upc = new Integer(model.getValueAt(i, 0).toString());
+			if( upc == p.getProduct_upc()){
+				tableProducts.setRowColor(i, Color.RED);
+				tableProducts.repaint();
+				updateRowValue(p.getStore_product_quantity(), i, 4);
+				}
+			}
+		}
+	public void updateRowValue(Object value, int row, int column){
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask(){
 
-//		tableProducts.
+			@Override
+			public void run() {
+				model.setValueAt(value, row, column);
+				tableProducts.repaint();
+				resetTableRowColor(row);
+			}
+		}, 500);
+	}
+	public void resetTableRowColor(int row){
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask(){
 
+			@Override
+			public void run() {
+				tableProducts.setRowColor(row, Color.WHITE);
+				tableProducts.repaint();
+				
+			}
+		}, 1000);
 	}
 }//end JFrame class
 
