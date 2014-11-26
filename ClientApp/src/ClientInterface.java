@@ -1,8 +1,5 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,16 +7,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
 import java.util.Map.Entry;
+import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -27,11 +24,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 public class ClientInterface extends JFrame {
 	private ClientApp app;
@@ -42,8 +35,8 @@ public class ClientInterface extends JFrame {
 	private final JLabel lblEmail = new JLabel("Email:");
 	private final JLabel lblPassword = new JLabel("Password:");
 	private final JTextField txtEmail = new JTextField();
-	private final JTextField txtPassword = new JTextField();
-	private final JButton btnLogin = new JButton("Login");
+	private final JPasswordField txtPassword = new JPasswordField();
+	private final JButton btnLogin = new MainCustomJButton("Login");
 	private final JLabel lblConnectionStatus = new JLabel("Connecting...");
 	//tables and their scroll panes
 	//3 tables: products, orders placed, orders details
@@ -57,7 +50,7 @@ public class ClientInterface extends JFrame {
 	private final JTable tableOrdersDetails = new JTable();
 	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
 	
-	private final JButton btnLogout = new JButton("Logout");
+	private final JButton btnLogout = new MainCustomJButton("Logout");
 
 	private final JLabel lblLoginStatus = new JLabel("Not logged in.");
 	private final JButton btnViewStores = new JButton("Stores");
@@ -99,17 +92,23 @@ public class ClientInterface extends JFrame {
 //	}//end main
 
 	public ClientInterface(ClientApp clientApp) {
+		this.setUndecorated(true);
+
+		this.getRootPane().setJMenuBar(new CustomTitleBar(this));
+
+		this.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		
 		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		tableOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		tableOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtPassword.setBounds(270, 202, 289, 40);
+		txtPassword.setBounds(490, 202, 289, 40);
 		txtPassword.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		txtPassword.setColumns(10);
-		txtEmail.setBounds(270, 151, 289, 40);
+		txtEmail.setBounds(490, 151, 289, 40);
 		txtEmail.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		
 		txtEmail.setColumns(10);
 		initGUI();
+
 		this.app = clientApp;
 	}
 	
@@ -132,6 +131,8 @@ public class ClientInterface extends JFrame {
 		//content pane within jframe holds components
 		contentPane = new JPanel();
 		loginPane = new JPanel();
+		loginPane.setBackground(Color.WHITE);
+		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//contentPane.setVisible(true);
 		//setContentPane(contentPane);
@@ -421,7 +422,7 @@ public class ClientInterface extends JFrame {
 		});//end listener
 		
 		contentPane.setLayout(null);
-				btnLogout.setBounds(0, 0, 118, 25);
+				btnLogout.setBounds(50, 0, 118, 25);
 				contentPane.add(btnLogout);
 				btnLogout.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				
@@ -453,7 +454,7 @@ public class ClientInterface extends JFrame {
 		contentPane.add(scrollPaneOrdersPlaced);
 		contentPane.add(scrollPaneOrdersDetails);
 		lblLoginStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblLoginStatus.setBounds(20, 129, 172, 23);
+		lblLoginStatus.setBounds(120, 120, 172, 23);
 		contentPane.add(lblLoginStatus);
 		contentPane.add(btnViewStores);
 		btnPlaceOrder.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -470,12 +471,13 @@ public class ClientInterface extends JFrame {
 		loginPane.setLayout(null);
 		loginPane.setBounds(0, 0, 802, 474);
 		loginPane.add(contentPane);
-		btnLogin.setBounds(350, 246, 100, 35);
+		btnLogin.setBounds(580, 266, 100, 35);
 		contentPane.setVisible(false);
 		loginPane.setVisible(true);
 		btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 22));
 		btnLogin.setEnabled(false);
-		
+		btnLogin.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		btnLogin.setForeground(Color.LIGHT_GRAY);
 				
 		//		******************
 		//		******************
@@ -492,20 +494,20 @@ public class ClientInterface extends JFrame {
 					}//end mouseClicked
 				});
 
-		lblEmail.setBounds(180, 165, 56, 17);
+		lblEmail.setBounds(400, 165, 56, 17);
 		loginPane.add(lblEmail);
 		lblEmail.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		
 		//add user components to contentPane; establish dimensions of components
 //		lblEmail.setHorizontalTextPosition(SwingConstants.LEFT);
 //		lblEmail.setHorizontalAlignment(SwingConstants.LEFT);
-		lblPassword.setBounds(180, 210, 80, 17);
+		lblPassword.setBounds(400, 210, 80, 17);
 		loginPane.add(lblPassword);
 		loginPane.add(lblEmail);	
 		loginPane.add(txtEmail);
 		loginPane.add(txtPassword);
 		loginPane.add(btnLogin);
-		lblConnectionStatus.setBounds(10, 10,80,20);
+		lblConnectionStatus.setBounds(50, 0,80,20);
 		loginPane.add(lblConnectionStatus);
 		lblPassword.setFont(new Font("Tahoma", Font.PLAIN, 18));
 //		lblPassword.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -598,8 +600,12 @@ public class ClientInterface extends JFrame {
 		}, 1000);
 	}
 	public void enableBtnLogin(){
+		Color c1 = new Color(255,127,80);
 		btnLogin.setEnabled(true);
+		btnLogin.setBorder(BorderFactory.createLineBorder(c1));
+		btnLogin.setForeground(c1);
 		lblConnectionStatus.setText("Connected");
+		
 	}
 }//end JFrame class
 
