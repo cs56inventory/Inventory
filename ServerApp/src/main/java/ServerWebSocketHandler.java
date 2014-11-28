@@ -236,10 +236,21 @@ public class ServerWebSocketHandler extends Db {
 					int newOrderId = this.insert(newOrder.getDbMappedValues(),
 							new Db.OrderMap());
 					if (newOrderId > 0) {
-						newOrder.setOrder_id(newOrderId);
+						newOrder.setOrder_id(newOrderId);			
 						Order_Product op = new Order_Product(newOrder.getOrder_id(),
 								pds.getProduct_upc(), pds.getMin_quantity(), productTotalPrice);
 						this.insert(op.getDbMappedValues(), new Db.OrderProductMap());
+						
+						this.getStoreOrders();
+						
+						if (!this.orders.isEmpty()) {
+							if (!this.products.isEmpty()) {
+								this.send("products", this.products);
+							}
+							this.send("orders", this.orders);
+							this.send("order_products", this.orderProducts);
+						}
+						
 						ArrayList<LinkedHashMap<String, String>> qryResults = this
 								.getDistributorMembers(pds.getDistributor_id());
 						if (!qryResults.isEmpty()) {

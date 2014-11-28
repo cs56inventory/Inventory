@@ -92,8 +92,8 @@ public class ClientWebsocketHandler {
 				if(o instanceof LinkedHashMap<?, ?>){
 					orders = (LinkedHashMap<Integer, Order>)o;
 
-					System.out.println("store products "+orders.values().toArray());
-//					clientInterface.fillOrders();
+					System.out.println("Orders "+orders.values().toArray());
+					clientInterface.fillOrders();
 					//create fillOrders method in clientInterface to fill order table --TODO
 				}
 			}
@@ -239,7 +239,7 @@ public class ClientWebsocketHandler {
 			int newQuantity = oldQuantity-1;
 			randomProduct.setStore_product_quantity(newQuantity);
 			System.out.println("New Quantity "+newQuantity);
-			clientInterface.updateTable(randomProduct);
+			clientInterface.updateStoreProductsTable(randomProduct);
 			this.send("update_store_product", randomProduct);
 		}
 	}

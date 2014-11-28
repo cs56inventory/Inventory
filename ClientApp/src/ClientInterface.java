@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -22,6 +24,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
 
 /*******************************
@@ -36,12 +39,12 @@ public class ClientInterface extends CleanJFrame {
 
 	//tables and their scroll panes
 	//3 tables: products, orders placed, orders details
-	private DefaultTableModel model=null;
-	private final RowTable tableProducts = new RowTable(model);
+//	private DefaultTableModel model=null;
+	private final RowTable tableProducts = new RowTable(null);
 	private final JScrollPane scrollPaneProducts = new JScrollPane(tableProducts);
-	private final RowTable tableOrdersPlaced = new RowTable(model);
-	private final JScrollPane scrollPaneOrdersPlaced = new JScrollPane(tableOrdersPlaced);
-	private final JTable tableOrdersDetails = new JTable();
+	private final RowTable tableOrders = new RowTable(null);
+	private final JScrollPane scrollPaneOrdersPlaced = new JScrollPane(tableOrders);
+	private final RowTable tableOrdersDetails = new RowTable(null);
 	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
 	private final JButton btnLogout = new CleanJButton("Logout");
 	
@@ -51,7 +54,7 @@ public class ClientInterface extends CleanJFrame {
 
 		
 		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		tableOrdersPlaced.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		tableOrders.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		tableOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
 		initGUI();
@@ -78,9 +81,9 @@ public class ClientInterface extends CleanJFrame {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				//clear contents of jtable & delete column headers
-				model.setRowCount(0);
+//				model.setRowCount(0);
 				String[] colNames = null;
-				model.setColumnIdentifiers(colNames);
+//				model.setColumnIdentifiers(colNames);
 				
 				//reset login fields and status message
 					loginPane.enableBtnLogin();
@@ -305,9 +308,8 @@ public class ClientInterface extends CleanJFrame {
 	public void fillStoreProducts(){
 	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 		String[] colNames = {"Product UPC", "Name", "Description", "Price", "Qty", "Min Qty"};
-		model = (DefaultTableModel) tableProducts.getModel();
+		DefaultTableModel model = (DefaultTableModel) tableProducts.getModel();
 		model.setColumnIdentifiers(colNames);
-		Store_Product m = new Store_Product();
 
 		for(Entry<?, ?> entry: this.socket.storeProducts.entrySet()){
 			entry.getKey();
@@ -319,40 +321,78 @@ public class ClientInterface extends CleanJFrame {
 
 		}
 	}
-	
+	/*******************************
+	 * Fills Orders  table
+	 *******************************/
+	public void fillOrders(){
+	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
+		String[] colNames = {"Order ID", "Store ID", "Distributor ID", "Total Price", "Created At", "Updated At","Status"};
+		DefaultTableModel model = (DefaultTableModel) tableOrders.getModel();
+		model.setColumnIdentifiers(colNames);
+		for(Entry<?, ?> entry: this.socket.orders.entrySet()){
+			entry.getKey();
+			Order order = (Order)entry.getValue();
+			Object[] properties = new Object[]{order.getOrder_id(),order.getStore_id(), order.getDistributor_id(),order.getOrder_total_price(),
+					order.getOrder_created_at(),order.getOrder_updated_at(),order.getOrder_status_id()};
+			if(isNewOrder(order, model, properties)){
+				model.addRow(properties);
+				model.fireTableDataChanged();
+				System.out.println("Row count "+model.getRowCount());
+				int rowCount = model.getRowCount()-1;
+				//TODO - need to stop scrolling if a row is selected
+				scrollToVisible(tableOrders,rowCount,0);
+			}
+		}
+		System.out.println("First value "+model.getValueAt(0, 0));
+	}
+
+	/*******************************
+	 * Checks if order is new
+	 *******************************/
+	public boolean isNewOrder(Order o, DefaultTableModel model, Object[] properties){
+		for(int i=0;i<model.getRowCount();i++){
+			int order_id = new Integer(model.getValueAt(i, 0).toString());
+			if( order_id == o.getOrder_id()){
+					return false;
+			}
+		}
+		return true;
+	}
 	/*******************************
 	 * Updates table
 	 *******************************/
-	public void updateTable(Store_Product p){
+	public void updateStoreProductsTable(Store_Product p){
+		DefaultTableModel model = (DefaultTableModel)tableProducts.getModel();
 		for(int i=0;i<model.getRowCount();i++){
 			int upc = new Integer(model.getValueAt(i, 0).toString());
 			if( upc == p.getProduct_upc()){
 				tableProducts.setRowColor(i, Color.RED);
 				tableProducts.repaint();
-				updateRowValue(p.getStore_product_quantity(), i, 4);
+				updateRowValue(tableProducts, p.getStore_product_quantity(), i, 4);
 				}
 			}
 	}
-	public void updateRowValue(Object value, int row, int column){
+
+	public void updateRowValue(RowTable table, Object value, int row, int column){
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask(){
 
 			@Override
 			public void run() {
-				model.setValueAt(value, row, column);
-				tableProducts.repaint();
-				resetTableRowColor(row);
+				table.getModel().setValueAt(value, row, column);
+				table.repaint();
+				resetTableRowColor(table, row);
 			}
 		}, 500);
 	}
-	public void resetTableRowColor(int row){
+	public void resetTableRowColor(RowTable table, int row){
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask(){
 
 			@Override
 			public void run() {
-				tableProducts.setRowColor(row, Color.WHITE);
-				tableProducts.repaint();
+				table.setRowColor(row, Color.WHITE);
+				table.repaint();
 				
 			}
 		}, 1000);
@@ -365,6 +405,31 @@ public class ClientInterface extends CleanJFrame {
 	public void connected() {
 		loginPane.enableBtnLogin();
 		loginPane.lblConnectionStatus.setText("Connected");
+	}
+	
+	//got this method from http://stackoverflow.com/questions/853020/jtable-scrolling-to-a-specified-row-index
+	public  void scrollToVisible(JTable table, int rowIndex, int vColIndex) {
+    if (!(table.getParent() instanceof JViewport)) {
+        return;
+    }
+    JViewport viewport = (JViewport)table.getParent();
+    
+    // This rectangle is relative to the table where the
+    // northwest corner of cell (0,0) is always (0,0).
+    Rectangle rect = table.getCellRect(rowIndex, vColIndex, true);
+
+    // The location of the viewport relative to the table
+    Point pt = viewport.getViewPosition();
+
+    // Translate the cell location so that it is relative
+    // to the view, assuming the northwest corner of the
+    // view is (0,0)
+    rect.setLocation(rect.x-pt.x, rect.y-pt.y);
+
+//    table.scrollRectToVisible(rect);
+
+    // Scroll the area into view
+    viewport.scrollRectToVisible(rect);
 	}
 }
 /*******************************
