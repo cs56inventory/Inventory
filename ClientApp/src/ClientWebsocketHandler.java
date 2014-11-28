@@ -39,7 +39,6 @@ public class ClientWebsocketHandler {
 		this.app = app;
 		this.closeLatch = new CountDownLatch(1);
 		this.clientInterface = app.getInterface();
-		System.out.println("name "+clientInterface.g);
 		//Repeatedly decrease randomly chosen store products' quantities here TODO
 		handlerMethods.put("login", new CommandAdapter(){
 		
@@ -129,7 +128,7 @@ public class ClientWebsocketHandler {
 	public void onConnect(Session session) {
 		System.out.println("Connected: %s%n" + session);
 		ClientApp.session = session;
-		clientInterface.enableBtnLogin();
+		clientInterface.connected();
 	}
 	
 	@OnWebSocketMessage

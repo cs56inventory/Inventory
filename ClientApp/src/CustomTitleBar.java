@@ -4,12 +4,10 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -40,9 +38,9 @@ public class CustomTitleBar extends JMenuBar{
 	  p.setLayout(new GridLayout(1,3));
 	  
 	  // Create buttons
-	  min=new CustomJButton("-");
-	  max=new CustomJButton("+");
-	  close=new CustomJButton("X");
+	  min = new CustomJButton("-", Color.LIGHT_GRAY, Color.WHITE, false);
+	  max = new CustomJButton("+", Color.LIGHT_GRAY, Color.WHITE, false);
+	  close  =new CustomJButton("X", Color.LIGHT_GRAY, Color.WHITE, false);
 
 	  min.addActionListener(new ActionListener(){
 
@@ -55,6 +53,7 @@ public class CustomTitleBar extends JMenuBar{
 	  });
 	  
 	  max.addActionListener(new ActionListener(){
+	  	
 	      public void actionPerformed(ActionEvent ae)
 	      {
 	          maximize();
@@ -83,16 +82,14 @@ public class CustomTitleBar extends JMenuBar{
 	  close.setFont(f);
 	  
 	  // Add buttons
-	  
 
 	  p.add(min);
 	  p.add(max);
 	  p.add(close);
-	  // To west, mac style!
 	  add(p,BorderLayout.EAST);
 	  
 	  // Add mouse listener for JMenuBar mb
-	  frame.addMouseListener(new MouseAdapter(){
+	  addMouseListener(new MouseAdapter(){
 	  	@Override
 	      public void mousePressed(MouseEvent e)
 	      {
@@ -107,11 +104,9 @@ public class CustomTitleBar extends JMenuBar{
 		        }
 		    }
 	  });
-	  frame.addMouseListener(new MouseAdapter(){
 
-	  });
 	  // Add MouseMotionListener for detecting drag
-	  frame.addMouseMotionListener(new MouseAdapter(){
+	  addMouseMotionListener(new MouseAdapter(){
 	      public void mouseDragged(MouseEvent e)
 	      {
 	          // Set the location
@@ -124,8 +119,7 @@ public class CustomTitleBar extends JMenuBar{
 	  });
 	}
 	
-	private void maximize()
-  {
+	private void maximize(){
 	  // Get GraphicsEnvironment object for getting GraphicsDevice object
 	  GraphicsEnvironment env=GraphicsEnvironment.getLocalGraphicsEnvironment();
 	  

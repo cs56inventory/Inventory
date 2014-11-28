@@ -21,16 +21,16 @@ public class Query {
 		this.db = db;
 	}
 	
-	Query (String q){
-		
-		this.query = "USE "+Db.db+" "+q;
-	}
-	
-	Query (String q, String[] parameters){
-		
-		this.query = "USE "+Db.db+" "+q;
-		this.parameters = parameters;
-	}
+//	Query (String q){
+//		
+//		this.query = "USE "+Db.db+" "+q;
+//	}
+//	
+//	Query (String q, String[] parameters){
+//		
+//		this.query = "USE "+Db.db+" "+q;
+//		this.parameters = parameters;
+//	}
 	
 	final void setQuery(String q){
 		this.query = "USE "+Db.db+" "+q;

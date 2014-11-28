@@ -278,6 +278,13 @@ public abstract class Db extends DAL{
 		return q.getQryResults();
 	}
 	
+	public ArrayList<LinkedHashMap<String, String>> getStoreMembers(int store_id){
+		Query q = new Query(this);
+		q.setQuery( q.select(new Db.StoreMemberMap(), new String[]{ Db.StoreMemberMap.store_id}) );
+		q.setParameters( new String[]{ new Integer(store_id).toString()} );
+		return q.getQryResults();
+	}
+	
 	public void getStoreProducts(){
 		Query q = new Query(this);
 		q.setQuery( q.select(

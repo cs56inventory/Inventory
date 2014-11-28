@@ -30,12 +30,20 @@ public class ServerWebSocketHandler extends Db {
 				login(o);
 			}
 		});
-
+		
 		handlerMethods.put("update_store_product", new CommandAdapter() {
 
 			@Override
 			public void runMethod(Object o) {
 				updateStoreProduct(o);
+			}
+		});
+		
+		handlerMethods.put("update_order", new CommandAdapter() {
+
+			@Override
+			public void runMethod(Object o) {
+				updateOrder(o);
 			}
 		});
 	}
@@ -248,6 +256,27 @@ public class ServerWebSocketHandler extends Db {
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	
+	public void updateOrder(Object receivedObject){
+		if(receivedObject instanceof Order){
+			Order o = (Order)receivedObject;
+			this.update(o.getDbMappedValues(), new Db.OrderMap());
+			this.orders.put(o.getOrder_id(),o);
+			ArrayList<LinkedHashMap<String,String>> qryResults = this.getStoreMembers(o.getStore_id());
+			if( !qryResults.isEmpty() ){
+				try{
+					for( int i=0; i<qryResults.size(); i++){
+						HashMap<String, String> row = qryResults.get(i);
+						Store_Member store_member = new Store_Member(row);
+						ServerApp.sendToUser(store_member.getUser_id(), "order", o);
+					}
+				}
+				catch(Exception ex){
+					System.out.println(ex);
 				}
 			}
 		}
