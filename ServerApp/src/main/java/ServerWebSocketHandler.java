@@ -62,6 +62,7 @@ public class ServerWebSocketHandler extends Db {
 	@OnWebSocketConnect
 	public void onConnect(Session s) {
 		this.session = s;
+		this.send("statuses", this.statuses);
 		System.out.println("Connecting to:  "
 				+ this.session.getRemoteAddress().getAddress());
 	}
@@ -155,6 +156,7 @@ public class ServerWebSocketHandler extends Db {
 	 * BEGIN HANDLER METHODS
 	 * 
 	 *****************************************/
+	
 	private void login(Object receivedObject) {
 		if (receivedObject instanceof User) {
 			this.user = (User) receivedObject;

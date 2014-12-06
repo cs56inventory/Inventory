@@ -4,6 +4,7 @@ import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,10 +26,11 @@ public class ClientWebsocketHandler {
 	User user = new User();
 	Store store = new Store();
 	LinkedHashMap<Integer, Store_Product> storeProducts = new LinkedHashMap<Integer, Store_Product>();
+	LinkedHashMap<Integer, Distributor_Product> distributorProducts = new LinkedHashMap<Integer, Distributor_Product>();
 	LinkedHashMap<Integer, Product> products= new LinkedHashMap<Integer, Product>();
 	LinkedHashMap<Integer, Order> orders = new LinkedHashMap<Integer, Order>();
 	LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>> orderProducts = new LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>>();
-	
+	LinkedHashMap<Integer, String> statuses = new LinkedHashMap<Integer, String>();
 	@SuppressWarnings("unused")
 	/*
 	 * Constructor
@@ -48,6 +50,17 @@ public class ClientWebsocketHandler {
 					user = (User)o;
 					System.out.println("userid "+user.getUser_Id());
 					clientInterface.login();
+				}
+			}
+		});	
+		
+		handlerMethods.put("statuses", new CommandAdapter(){
+			
+			@Override
+			public void runMethod(Object o) {
+				if(o instanceof LinkedHashMap<?, ?>){
+					statuses = (LinkedHashMap<Integer, String>)o;	
+					
 				}
 			}
 		});	
@@ -83,7 +96,20 @@ public class ClientWebsocketHandler {
 					startProductQuantityUpdate();
 				}
 			}			
-		});		
+		});	
+		handlerMethods.put("distributor_products", new CommandAdapter(){
+
+			@Override
+			public void runMethod(Object o) {
+				if(o instanceof LinkedHashMap<?, ?>){
+					distributorProducts = (LinkedHashMap<Integer, Distributor_Product>)o;
+
+					System.out.println("distributor_products products "+distributorProducts.values().toArray());
+					clientInterface.fillDistributorProducts();
+
+				}
+			}			
+		});	
 		//add fillOrders method in ClientInterface TODO
 		handlerMethods.put("orders", new CommandAdapter(){
 
@@ -99,7 +125,7 @@ public class ClientWebsocketHandler {
 			}
 		});
 		
-		handlerMethods.put("order_update", new CommandAdapter(){
+		handlerMethods.put("order", new CommandAdapter(){
 
 			@Override
 			public void runMethod(Object o) {
@@ -107,7 +133,7 @@ public class ClientWebsocketHandler {
 					Order updatedOrder = (Order)o;
 					orders.put(updatedOrder.getOrder_id(), updatedOrder);
 					System.out.println("Order update received: ");
-//					clientInterface.updateOrder();
+					clientInterface.updateOrder(updatedOrder);
 					//create updateOrder method in clientInterface to update order row --TODO
 				}
 			}

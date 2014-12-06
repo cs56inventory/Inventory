@@ -16,8 +16,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -26,6 +28,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 /*******************************
  * Client Interface JFrame
@@ -322,9 +325,34 @@ public class ClientInterface extends CleanJFrame {
 		}
 	}
 	/*******************************
+	 * Fills Distributor Products table
+	 *******************************/
+
+	public void fillDistributorProducts(){
+	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
+		String[] colNames = {"Product UPC", "Name", "Description", "Qty"};
+		DefaultTableModel model = (DefaultTableModel) tableProducts.getModel();
+		model.setColumnIdentifiers(colNames);
+
+		for(Entry<?, ?> entry: this.socket.distributorProducts.entrySet()){
+			entry.getKey();
+			Distributor_Product dpr = (Distributor_Product)entry.getValue();
+			Object[] properties = new Object[]{dpr.getProduct_upc(),this.socket.products.get(dpr.getProduct_upc()).getProduct_name(), 
+					this.socket.products.get(dpr.getProduct_upc()).getProduct_description(),dpr.getDistributor_product_quantity()};
+			model.addRow(properties);
+
+		}
+	}
+	/*******************************
 	 * Fills Orders  table
 	 *******************************/
 	public void fillOrders(){
+		
+		JComboBox comboBox = new JComboBox();
+		for(Entry<Integer, String> status: this.socket.statuses.entrySet()){
+			comboBox.addItem(status.getValue());
+		}
+
 	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
 		String[] colNames = {"Order ID", "Store ID", "Distributor ID", "Total Price", "Created At", "Updated At","Status"};
 		DefaultTableModel model = (DefaultTableModel) tableOrders.getModel();
@@ -333,18 +361,50 @@ public class ClientInterface extends CleanJFrame {
 			entry.getKey();
 			Order order = (Order)entry.getValue();
 			Object[] properties = new Object[]{order.getOrder_id(),order.getStore_id(), order.getDistributor_id(),order.getOrder_total_price(),
-					order.getOrder_created_at(),order.getOrder_updated_at(),order.getOrder_status_id()};
+					order.getOrder_created_at(),order.getOrder_updated_at(), this.socket.statuses.get(order.getOrder_status_id()) };
 			if(isNewOrder(order, model, properties)){
-				model.addRow(properties);
+				model.addRow(properties);				
 				model.fireTableDataChanged();
-				System.out.println("Row count "+model.getRowCount());
-				int rowCount = model.getRowCount()-1;
+				int rowNumber = model.getRowCount()-1;
 				//TODO - need to stop scrolling if a row is selected
-				scrollToVisible(tableOrders,rowCount,0);
+				scrollToVisible(tableOrders,rowNumber,0);
 			}
+			comboBox.setSelectedIndex(order.getOrder_status_id());
+			tableOrders.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(comboBox));
 		}
-		System.out.println("First value "+model.getValueAt(0, 0));
 	}
+	
+	/*******************************
+	 * Update/Add Order  table
+	 *******************************/
+	public void updateOrder(Order order){
+	
+//		String[] colNames = {"Order ID", "Store ID", "Distributor ID", "Total Price", "Created At", "Updated At","Status"};
+		DefaultTableModel model = (DefaultTableModel) tableOrders.getModel();
+//		model.setColumnIdentifiers(colNames);
+
+		Object[] properties = new Object[]{order.getOrder_id(),order.getStore_id(), order.getDistributor_id(),order.getOrder_total_price(),
+				order.getOrder_created_at(),order.getOrder_updated_at(),this.socket.statuses.get(order.getOrder_status_id())};
+		if(isNewOrder(order, model, properties)){
+			model.addRow(properties);
+			model.fireTableDataChanged();
+			int rowCount = model.getRowCount()-1;
+			//TODO - need to stop scrolling if a row is selected
+			scrollToVisible(tableOrders,rowCount,0);
+		}
+		else{
+			for(int i=0;i<model.getRowCount();i++){
+				int order_id = new Integer(model.getValueAt(i, 0).toString());
+				if( order_id == order.getOrder_id()){
+					scrollToVisible(tableOrders,i,0);
+					tableOrders.setRowColor(i, Color.RED);
+					tableOrders.repaint();
+					updateRowValue(tableOrders, order.getOrder_status_id(), i, 6);
+				}
+			}			
+		}
+		
+	}	
 
 	/*******************************
 	 * Checks if order is new
@@ -425,11 +485,12 @@ public class ClientInterface extends CleanJFrame {
     // to the view, assuming the northwest corner of the
     // view is (0,0)
     rect.setLocation(rect.x-pt.x, rect.y-pt.y);
-
+//    rect.setLocation(rect.x-pt.x, rect.y+50);
 //    table.scrollRectToVisible(rect);
 
     // Scroll the area into view
     viewport.scrollRectToVisible(rect);
+//		table.repaint();
 	}
 }
 /*******************************

@@ -113,8 +113,15 @@ public class Query {
 		return where;
 	}
 	//creates an sql select statements
-	final String select(DbTable table){
-		String select=this.select(table.columns)+this.from(table.tableName)+this.where(table.primaryKeys);
+	final String select(DbTable table, boolean parameters){
+		String select;
+		if(parameters){
+			select=this.select(table.columns)+this.from(table.tableName)+this.where(table.primaryKeys);		
+		}
+		else{
+			select=this.select(table.columns)+this.from(table.tableName);
+		}
+
 		return select;
 	}
 	//creates an sql select statement given a tabe name and condition keys

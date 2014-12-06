@@ -24,7 +24,10 @@ public abstract class Db extends DAL{
 	LinkedHashMap<Integer, Product> products = new LinkedHashMap<Integer, Product>();
 	LinkedHashMap<Integer, Order> orders = new LinkedHashMap<Integer, Order>();
 	LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>> orderProducts = new LinkedHashMap<Integer, LinkedHashMap<Integer, Order_Product>>();
+	LinkedHashMap<Integer, String> statuses = new LinkedHashMap<Integer, String>();
+
 	protected Db(){
+		this.getStatuses();
 	}
 	static final class StatusMap extends DbTable{
 		public StatusMap(){
@@ -224,8 +227,21 @@ public abstract class Db extends DAL{
 		static final String status_id = Db.ProductDistributorStoreMap.product_distributor_store_table+"."+"[pds_status_id]";
 	}	
 	
+	public void getStatuses(){
+		Query q = new Query(this);
+		q.setQuery(q.select(new Db.StatusMap(), false));
+//		q.setParameters(new String[]{"*"});
+		if( !q.getQryResults().isEmpty() ){
+			for (int i = 0; i < q.qryResults.size(); i++) {
+				Status_Map status = new Status_Map(q.qryResults.get(i));
+				System.out.println(status.getStatus_id()+ " "+status.getStatus_description());
+				this.statuses.put( status.getStatus_id(), status.getStatus_description() );				
+			}
+		}
+	}
+	
 	public void getUserStoreMemberStore(){
-		System.out.println("hello g ");
+
 		Query q = new Query(this);
 		q.setQuery( q.select(
 				new DbTable[]{new Db.UserMap(),new Db.StoreMemberMap(), new Db.StoreMap()}, 
@@ -357,7 +373,7 @@ public abstract class Db extends DAL{
 	
 	public void getDistributorOrders(){
 		Query q = new Query(this);
-		q.setQuery( q.select(new Db.OrderMap(), new String[]{ Db.DistributorMap.id }) );
+		q.setQuery( q.select(new Db.OrderMap(), new String[]{ Db.OrderMap.distributor_id }) );
 		q.setParameters( new String[] { new Integer(distributor.getDistributor_id()).toString() } );
 
 		if (!q.getQryResults().isEmpty()) {
