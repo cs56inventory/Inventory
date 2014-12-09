@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -12,23 +13,28 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 
 public class CustomTitleBar extends JMenuBar{
 	
-	JFrame frame;
+	CleanJFrame frame;
 	JPanel p;
 	JButton close,min,max;
+	JLabel title; 
 	Font f=new Font("Arial",Font.PLAIN,25);
 	int pX,pY;
 	
-	public CustomTitleBar(JFrame frame){
-		
-		this.setLayout(new BorderLayout());
+	public CustomTitleBar(CleanJFrame frame){
+
+		this.setLayout(new GridLayout(1,3));
 	  this.frame=frame;
 	  // Create panel
+	  title = new JLabel(frame.title);
+	  CustomJPanel buttonsPanel= new CustomJPanel(new BorderLayout());
+	  CustomJPanel titlePanel = new CustomJPanel(new FlowLayout(FlowLayout.CENTER));
 	  this.setBackground(Color.WHITE);
 	  this.setOpaque(true);
 	  this.setBorder(BorderFactory.createEmptyBorder());
@@ -86,8 +92,12 @@ public class CustomTitleBar extends JMenuBar{
 	  p.add(min);
 	  p.add(max);
 	  p.add(close);
-	  add(p,BorderLayout.EAST);
-	  
+	  title.setFont(f);
+	  titlePanel.add(title);
+	  buttonsPanel.add(p,BorderLayout.EAST);
+	  add(new CustomJPanel());
+	  add(titlePanel);
+	  add(buttonsPanel);
 	  // Add mouse listener for JMenuBar mb
 	  addMouseListener(new MouseAdapter(){
 	  	@Override

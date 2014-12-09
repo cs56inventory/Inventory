@@ -234,7 +234,6 @@ public abstract class Db extends DAL{
 		if( !q.getQryResults().isEmpty() ){
 			for (int i = 0; i < q.qryResults.size(); i++) {
 				Status_Map status = new Status_Map(q.qryResults.get(i));
-				System.out.println(status.getStatus_id()+ " "+status.getStatus_description());
 				this.statuses.put( status.getStatus_id(), status.getStatus_description() );				
 			}
 		}
@@ -251,7 +250,6 @@ public abstract class Db extends DAL{
 		q.setParameters( new String[] { user.getUser_email(), user.getUser_password() } );
 		;
 		if ( !(q.getQryResults().isEmpty()) ) {
-			System.out.println("hello "+q.getQryResults());
 			try{
 				this.user = new User(q.qryResults.get(0));
 				this.store_member = new Store_Member(q.qryResults.get(0));

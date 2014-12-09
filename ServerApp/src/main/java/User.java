@@ -104,7 +104,6 @@ public class User implements Serializable {
 	}
 	
 	private void setProperties(HashMap<String, String> row){
-		System.out.println("user id"+row.get(Db.UserMap.user_id));
 		this.setUser_Id(new Integer(row.get(Db.UserMap.user_id)));
 		this.setUser_first_name(row.get(Db.UserMap.first_name));
 		this.setUser_last_name(row.get(Db.UserMap.last_name));

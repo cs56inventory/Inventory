@@ -5,13 +5,17 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map.Entry;
+import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,6 +31,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -37,9 +43,8 @@ public class ClientInterface extends CleanJFrame {
 	private ClientApp app;
 	private ClientWebsocketHandler socket;
 	private LoginPane loginPane;
-	private JPanel contentPane;
+	private ContentPane contentPane;
 	private boolean loggedIn;
-
 	//tables and their scroll panes
 	//3 tables: products, orders placed, orders details
 //	private DefaultTableModel model=null;
@@ -50,12 +55,13 @@ public class ClientInterface extends CleanJFrame {
 	private final RowTable tableOrdersDetails = new RowTable(null);
 	private final JScrollPane scrollPaneOrdersDetails = new JScrollPane(tableOrdersDetails);
 	private final JButton btnLogout = new CleanJButton("Logout");
+	JComboBox cmbOrderStatus = new JComboBox();
 	
 	
-	
-	public ClientInterface(ClientApp clientApp) {
+	public ClientInterface(ClientApp clientApp,  String title) {
+		super(title);
 
-		
+		this.title=title;
 		tableProducts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		tableOrders.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		tableOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -67,13 +73,12 @@ public class ClientInterface extends CleanJFrame {
 	
 	private void initGUI(){
 		
-		contentPane = new ContentPane();
 		loginPane = new LoginPane();
 		
 		setFont(new Font("Tahoma", Font.BOLD, 14));
-		setTitle("Store Interface");
+		setTitle("Inventory");
 		setContentPane(loginPane);
-		setSize(1280, 654);
+		setSize(1280, 700);
 		setLocationRelativeTo(null);
 		setVisible(true);
 
@@ -83,17 +88,11 @@ public class ClientInterface extends CleanJFrame {
 		btnLogout.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				//clear contents of jtable & delete column headers
-//				model.setRowCount(0);
-				String[] colNames = null;
+
 //				model.setColumnIdentifiers(colNames);
-				
-				//reset login fields and status message
-					loginPane.enableBtnLogin();
-			    loggedIn = false;
-			    loginPane.setVisible(true);
-			    loginPane.btnLogin.setEnabled(true);
-				setContentPane(loginPane);
+			    socket.timer.cancel();
+			    socket.send("logout", socket.user);
+					app.logout();
 			}//end mouseClicked
 		});
 	}
@@ -103,13 +102,15 @@ public class ClientInterface extends CleanJFrame {
 	 * Main Content Panel
 	 *******************************/
 	class  ContentPane extends CustomJPanel{
+		JPanel clientInfoPanel;
+	 	JPanel btnLogoutPanel = new CustomJPanel(new FlowLayout(FlowLayout.LEADING,30,0));
 		ContentPane(){
 			this.setLayout(new BorderLayout());
 		 	JPanel contentPaneContent = new CustomJPanel();
-		 	JPanel btnLogoutPanel = new CustomJPanel(new FlowLayout(FlowLayout.LEADING,30,0));
 		 	JLabel lblProducts = new JLabel("Available Products");
 		 	JLabel lblOrders = new JLabel("Created Orders");
 		 	JLabel lblOrderDetails = new JLabel("Order Details");
+
 		 	
 		 	lblProducts.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		 	lblOrders.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -121,9 +122,31 @@ public class ClientInterface extends CleanJFrame {
 		 	lblProductsPanel.add(lblProducts);
 		 	lblOrdersPanel.add(lblOrders);
 		 	lblOrderDetailsPanel.add(lblOrderDetails);
-		 	
-		 	
 		 	btnLogoutPanel.add(btnLogout);
+
+		 	if(socket.distributor!=null){
+		 		title="Distributor Inventory";
+			 	clientInfoPanel = new CustomJPanel(new GridLayout(2,2));
+			 	clientInfoPanel.add(new JLabel("User Name:"));
+		 		clientInfoPanel.add(new JLabel(socket.user.getUser_first_name()+" "+socket.user.getUser_last_name()));	
+		 		clientInfoPanel.add(new JLabel("Distributor Name:"));
+		 		clientInfoPanel.add(new JLabel(socket.distributor.getDistributor_name()));		
+		 	}
+		 	else{
+		 		title="Store Inventory";
+			 	clientInfoPanel = new CustomJPanel(new GridLayout(5,2));
+			 	clientInfoPanel.add(new JLabel("User Name:"));
+		 		clientInfoPanel.add(new JLabel(socket.user.getUser_first_name()+" "+socket.user.getUser_last_name()));	
+			 	clientInfoPanel.add(new JLabel("Store Name:"));
+			 	clientInfoPanel.add(new JLabel(socket.store.getStore_name()));	
+			 	clientInfoPanel.add(new JLabel("Store address:"));
+			 	clientInfoPanel.add(new JLabel(socket.store.getStore_street_address()));	
+			 	clientInfoPanel.add(new JLabel("")); 	
+			 	clientInfoPanel.add(new JLabel(socket.store.getStore_city()+" "+socket.store.getStore_state()+" "+
+			 			socket.store.getStore_zip_code()));	
+		 	}
+		 	btnLogoutPanel.add(clientInfoPanel);
+		 	
 		 	contentPaneContent.setLayout(new FlowLayout());
 		 	
 		 	JPanel productsPanel = new CustomJPanel(new BorderLayout());
@@ -143,7 +166,7 @@ public class ClientInterface extends CleanJFrame {
 			
 			scrollPaneOrdersDetails.setFont(new Font("Tahoma", Font.PLAIN, 14));
 	//		scrollPaneOrdersDetails.setBounds(20, 374, 600, 200);
-			scrollPaneOrdersDetails.setPreferredSize(new Dimension(600,250));
+			scrollPaneOrdersDetails.setPreferredSize(new Dimension(900,250));
 			scrollPaneOrdersDetails.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			
 			btnLogout.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -277,10 +300,15 @@ public class ClientInterface extends CleanJFrame {
 			btnLogin.setBackground(Color.WHITE);
 		
 		}
-
+		
+		public void disableBtnLogin(){
+			btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 36));
+			btnLogin.setEnabled(false);
+			btnLogin.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+			btnLogin.setForeground(Color.LIGHT_GRAY);
+		}
 		public void loginFailed(){
 			//if no results or more than 1 result, login fails; reset login fields and change status label message
-			System.out.println(socket.user.getUser_Id() );
 			if (socket.user.getUser_Id() == 0 && loggedIn==false) {
 					lblLoginStatus.setText("Login failed. Please try again.");
 			    txtEmail.setText("");
@@ -299,10 +327,11 @@ public class ClientInterface extends CleanJFrame {
 	public void login(){
 
 		loggedIn = true;
+		contentPane = new ContentPane();
 		setContentPane(contentPane);
+		this.getRootPane().setJMenuBar(new CustomTitleBar(this));
 		this.setVisible(true);
 	}
-	
 	
 	/*******************************
 	 * Fills Store Products table
@@ -344,13 +373,34 @@ public class ClientInterface extends CleanJFrame {
 		}
 	}
 	/*******************************
+	 * Fills Order Details table
+	 *******************************/
+
+	public void fillOrderDetails(int orderId){
+	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
+		String[] colNames = {"Order ID", "Product UPC", "Name", "Description", "Per Unit Price", "Qty", "Total Price"};
+//		DefaultTableModel model = (DefaultTableModel) tableOrdersDetails.getModel();
+		DefaultTableModel model = new DefaultTableModel();
+		model.setColumnIdentifiers(colNames);
+		tableOrdersDetails.setModel(model);
+		LinkedHashMap<Integer, Order_Product> orderProducts = this.socket.orderProducts.get(orderId);
+		for(Entry<?, ?> entry: orderProducts.entrySet()){
+			entry.getKey();
+			Order_Product opr = (Order_Product)entry.getValue();
+			Product p = this.socket.products.get(entry.getKey());
+			Object[] properties = new Object[]{opr.getOrder_id(), p.getProduct_upc(),p.getProduct_name(), p.getProduct_description(),
+					opr.getOrder_product_total_price()/opr.getOrder_product_quantity(), opr.getOrder_product_quantity(), opr.getOrder_product_total_price()};
+			model.addRow(properties);
+
+		}
+	}
+	/*******************************
 	 * Fills Orders  table
 	 *******************************/
 	public void fillOrders(){
 		
-		JComboBox comboBox = new JComboBox();
 		for(Entry<Integer, String> status: this.socket.statuses.entrySet()){
-			comboBox.addItem(status.getValue());
+			this.cmbOrderStatus.addItem(status.getValue());
 		}
 
 	//this method of filling the JTable was taken from http://www.rgagnon.com/javadetails/java-0309.html, last visited 10/26/14 by MGE
@@ -369,9 +419,35 @@ public class ClientInterface extends CleanJFrame {
 				//TODO - need to stop scrolling if a row is selected
 				scrollToVisible(tableOrders,rowNumber,0);
 			}
-			comboBox.setSelectedIndex(order.getOrder_status_id());
-			tableOrders.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(comboBox));
+//			comboBox.setSelectedIndex(order.getOrder_status_id());
+
 		}
+		tableOrders.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if(tableOrders.getSelectedRow()>-1){
+					fillOrderDetails(new Integer(tableOrders.getValueAt(tableOrders.getSelectedRow(), 0).toString()));
+				}
+				
+			}
+			
+		});
+		tableOrders.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(cmbOrderStatus));
+		cmbOrderStatus.addItemListener(new ItemListener(){
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+
+		    if (e.getStateChange() == ItemEvent.SELECTED) {
+		    	
+		    	int orderId = (Integer)tableOrders.getValueAt(	tableOrders.getSelectedRow(), 0);
+		    	Order order = socket.orders.get(orderId);
+		    	order.setOrder_status_id(cmbOrderStatus.getSelectedIndex()+1);
+		    	socket.send("update_order", order);
+		    }
+			}
+		});
 	}
 	
 	/*******************************
@@ -399,7 +475,8 @@ public class ClientInterface extends CleanJFrame {
 					scrollToVisible(tableOrders,i,0);
 					tableOrders.setRowColor(i, Color.RED);
 					tableOrders.repaint();
-					updateRowValue(tableOrders, order.getOrder_status_id(), i, 6);
+
+					updateRowValue(tableOrders, this.socket.statuses.get(order.getOrder_status_id()), i, 6);
 				}
 			}			
 		}
@@ -467,6 +544,10 @@ public class ClientInterface extends CleanJFrame {
 		loginPane.lblConnectionStatus.setText("Connected");
 	}
 	
+	public void disconnected(){
+		loginPane.disableBtnLogin();
+		loginPane.lblConnectionStatus.setText("Connecting");
+	}
 	//got this method from http://stackoverflow.com/questions/853020/jtable-scrolling-to-a-specified-row-index
 	public  void scrollToVisible(JTable table, int rowIndex, int vColIndex) {
     if (!(table.getParent() instanceof JViewport)) {

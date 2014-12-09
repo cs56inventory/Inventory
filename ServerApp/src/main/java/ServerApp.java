@@ -30,7 +30,6 @@ public class ServerApp {
 			
 		  @Override
 		  public void configure(WebSocketServletFactory factory) {
-		  	System.out.println("Timeout "+getStopTimeout());
 		  	factory.getPolicy().setIdleTimeout(Integer.MAX_VALUE);
 		    factory.setCreator(new WebSocketCreator() {
 		      public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
@@ -41,7 +40,7 @@ public class ServerApp {
 		          } catch (IOException e) {
 		        	System.out.println("stopped");
 		          }
-		          System.out.println("return nothing");
+		          System.out.println("Unable to create websocket connection");
 		          return null;
 		        }
 		        return new ServerWebSocketHandler();

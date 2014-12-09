@@ -12,11 +12,15 @@ import javax.swing.JFrame;
 public class CleanJFrame extends JFrame{
 
 		int pX,pY;
-		public CleanJFrame(){
+		String title;
+		CustomTitleBar titleBar;
+		public CleanJFrame(String title){
 			super();
 //			this.setLayout(new BorderLayout());
+			this.title = title;
 			this.setUndecorated(true);
-			this.getRootPane().setJMenuBar(new CustomTitleBar(this));
+			this.titleBar=new CustomTitleBar(this);
+			this.getRootPane().setJMenuBar(this.titleBar);
 			this.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		  addMouseListener(new MouseAdapter(){
 		  	@Override

@@ -30,7 +30,13 @@ public class ServerWebSocketHandler extends Db {
 				login(o);
 			}
 		});
-		
+		handlerMethods.put("logout", new CommandAdapter() {
+
+			@Override
+			public void runMethod(Object o) {
+				logout(o);
+			}
+		});
 		handlerMethods.put("update_store_product", new CommandAdapter() {
 
 			@Override
@@ -68,7 +74,7 @@ public class ServerWebSocketHandler extends Db {
 	}
 
 	private void refuseConnection() {
-		System.out.println("refusing connection:  ");
+		System.out.println("Refusing connection:  ");
 		this.send("connection refused");
 	}
 
@@ -85,7 +91,6 @@ public class ServerWebSocketHandler extends Db {
 			this.handlerMethods.getOrDefault(_message, new CommandAdapter() {
 				@Override
 				public void runMethod() {
-					System.out.println("refusing connection:  ");
 					refuseConnection();
 				}
 			}).runMethod(unwrappedObject);
@@ -156,7 +161,14 @@ public class ServerWebSocketHandler extends Db {
 	 * BEGIN HANDLER METHODS
 	 * 
 	 *****************************************/
-	
+	private void logout(Object receivedObject){
+		if (receivedObject instanceof User) {
+			if(this.user.getUser_Id()==((User) receivedObject).getUser_Id()){
+				ServerApp.userMap.remove(this.user.getUser_Id());
+				this.session.close();
+			}
+		}
+	}
 	private void login(Object receivedObject) {
 		if (receivedObject instanceof User) {
 			this.user = (User) receivedObject;
@@ -166,7 +178,6 @@ public class ServerWebSocketHandler extends Db {
 
 				ServerApp.userMap.put(this.user.getUser_Id(), this);
 
-				this.send("login", this.user);
 				// return user products, orders
 
 				if (this.store_member != null && this.store_member.getStore_id() != 0
@@ -181,13 +192,13 @@ public class ServerWebSocketHandler extends Db {
 					}
 				}
 				this.getStoreOrders();
+				this.send("login", this.user);
 			} else {
 				this.getUserDistributorMemberDistributor();
 				if (this.user != null && this.user.getUser_Id() != 0) {
 
 					ServerApp.userMap.put(this.user.getUser_Id(), this);
 
-					this.send("login", this.user);
 					// return user products, orders
 
 					if (this.distributor_member != null
@@ -204,6 +215,10 @@ public class ServerWebSocketHandler extends Db {
 						}
 					}
 					this.getDistributorOrders();
+					this.send("login", this.user);
+				}
+				else{
+					this.send("login_failed");
 				}
 			}
 
@@ -261,6 +276,8 @@ public class ServerWebSocketHandler extends Db {
 									HashMap<String, String> row = qryResults.get(i);
 									Distributor_Member distributor_member = new Distributor_Member(
 											row);
+									ServerApp.sendToUser(distributor_member.getUser_id(),
+											"order_product", op);
 									ServerApp.sendToUser(distributor_member.getUser_id(),
 											"order", newOrder);
 								}
