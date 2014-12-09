@@ -64,32 +64,21 @@ public class Store_Member implements Serializable{
 	}
 	
 	private void setProperties(HashMap<String, String> row){
-		this.setUser_id(new Integer(row.get(DbMap.Store_member.user_id)));
-		this.setStore_id(new Integer(row.get(DbMap.Store_member.store_id)));
-		this.setMember_type_id(new Integer(row.get(DbMap.Store_member.type_id)));
-		this.setMember_status_id(new Integer(row.get(DbMap.Store_member.status_id)));
+		this.setUser_id(new Integer(row.get(Db.StoreMemberMap.user_id)));
+		this.setStore_id(new Integer(row.get(Db.StoreMemberMap.store_id)));
+		this.setMember_type_id(new Integer(row.get(Db.StoreMemberMap.type_id)));
+		this.setMember_status_id(new Integer(row.get(Db.StoreMemberMap.status_id)));
 
 	}
 	
 	public HashMap<String, String> getDbMappedValues(){
 		HashMap<String, String> stoeMemberTable = new HashMap<String, String>();
-		stoeMemberTable.put(DbMap.Store_member.user_id, new Integer(this.getUser_id()).toString());
-		stoeMemberTable.put(DbMap.Store_member.store_id, new Integer(this.getStore_id()).toString());
-		stoeMemberTable.put(DbMap.Store_member.type_id, new Integer(this.getMember_type_id()).toString());
-		stoeMemberTable.put(DbMap.Store_member.status_id, new Integer(this.getMember_status_id()).toString());
+		stoeMemberTable.put(Db.StoreMemberMap.user_id, new Integer(this.getUser_id()).toString());
+		stoeMemberTable.put(Db.StoreMemberMap.store_id, new Integer(this.getStore_id()).toString());
+		stoeMemberTable.put(Db.StoreMemberMap.type_id, new Integer(this.getMember_type_id()).toString());
+		stoeMemberTable.put(Db.StoreMemberMap.status_id, new Integer(this.getMember_status_id()).toString());
 		
 		return stoeMemberTable;
 	}
-	
-//	public boolean isStore_member(){
-//		String q = "SELECT * FROM "+DbMap.Store_member.table_name+" WHERE "+DbMap.Store_member.user_id+"=?";
-//		ArrayList <String> parameters = new ArrayList<String>();
-//		parameters.add(new Integer(this.getUser_id()).toString());
-//		DAL qry = new DAL(q, parameters);
-//		this.setProperties(qry.getResults().get(0));
-//		if(this.getStore_id()!=0){
-//			return true;
-//		}
-//		return false;
-//	}
+
 }

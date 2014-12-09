@@ -51,16 +51,16 @@ public class Product implements Serializable{
 	
 	private void setProperties(HashMap<String, String> row) {
 
-		this.setProduct_upc( new Integer(row.get(DbMap.Product.upc)) );
-		this.setProduct_name( row.get(DbMap.Product.name) );
-		this.setProduct_description( row.get(DbMap.Product.description) );
+		this.setProduct_upc( new Integer(row.get(Db.ProductMap.upc)) );
+		this.setProduct_name( row.get(Db.ProductMap.name) );
+		this.setProduct_description( row.get(Db.ProductMap.description) );
 	}
 	
 	public HashMap<String, String> getDbMappedValues(){
 		HashMap<String, String> product = new HashMap<String, String>();
-		product.put(DbMap.Product.upc, new Integer(this.getProduct_upc()).toString());
-		product.put(DbMap.Product.name, this.getProduct_name());
-		product.put(DbMap.Product.description, this.getProduct_description());
+		product.put(Db.ProductMap.upc, new Integer(this.getProduct_upc()).toString());
+		product.put(Db.ProductMap.name, this.getProduct_name());
+		product.put(Db.ProductMap.description, this.getProduct_description());
 		
 		return product;
 	}

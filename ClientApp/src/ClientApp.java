@@ -15,7 +15,7 @@ public class ClientApp {
 	}
 	public ClientApp() {
 		// TODO Auto-generated method stub
-		this.clientInterface = new ClientInterface(this);
+		this.clientInterface = new ClientInterface(this,"Inventory");
 		createConnection();
 	}
 	public void createConnection(){
@@ -28,8 +28,6 @@ public class ClientApp {
 				client = new WebSocketClient();
 				client.setMaxIdleTimeout(86400000);
 				client.start();
-
-
 			}
 
 			URI serverUri = new URI("ws://localhost:8080/");
@@ -37,7 +35,6 @@ public class ClientApp {
 			client.connect(socket, serverUri, request);
 			System.out.printf("connecting to: %s%n", serverUri);
 
-			
 			// socket.awaitClose(15, TimeUnit.SECONDS);
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -49,7 +46,12 @@ public class ClientApp {
 			}
 		}
 	}
-
+	void logout(){
+		this.clientInterface.dispose();
+		this.clientInterface = new ClientInterface(this,"Inventory");
+		socket = new ClientWebsocketHandler(this);
+		createConnection();
+	}
 	public WebSocketClient getClient() {
 		return client;
 	}

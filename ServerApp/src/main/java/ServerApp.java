@@ -19,7 +19,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 
 public class ServerApp {
-	public static final LinkedHashMap<Integer, Object> userMap = new LinkedHashMap<Integer, Object>();
+	static final LinkedHashMap<Integer, ServerWebSocketHandler> userMap = new LinkedHashMap<Integer, ServerWebSocketHandler>();
 	public static void main(String[] args) throws Exception {
 
 		Server server = new Server(8080);	
@@ -30,7 +30,7 @@ public class ServerApp {
 			
 		  @Override
 		  public void configure(WebSocketServletFactory factory) {
-		  	
+		  	factory.getPolicy().setIdleTimeout(Integer.MAX_VALUE);
 		    factory.setCreator(new WebSocketCreator() {
 		      public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
 		        String query = req.getRequestURI().toString();
@@ -40,7 +40,7 @@ public class ServerApp {
 		          } catch (IOException e) {
 		        	System.out.println("stopped");
 		          }
-		          System.out.println("return nothing");
+		          System.out.println("Unable to create websocket connection");
 		          return null;
 		        }
 		        return new ServerWebSocketHandler();
@@ -111,5 +111,24 @@ public class ServerApp {
 		server.join();
 		
 	}
-
+	static boolean sendToUser(int key, String message, Object object){
+		if(userMap.containsKey(key)){
+			ServerWebSocketHandler memberSocket = userMap.get(key);
+			if(memberSocket!=null){
+				memberSocket.send(message, object);
+				return true;
+			}
+		}
+		return false;
+	}
+	static boolean sendToUser(int key, String message){
+		if(userMap.containsKey(key)){
+			ServerWebSocketHandler memberSocket = userMap.get(key);
+			if(memberSocket!=null){
+				memberSocket.send(message);
+				return true;
+			}
+		}
+		return false;
+	}
 }

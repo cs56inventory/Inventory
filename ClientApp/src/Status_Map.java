@@ -16,7 +16,7 @@ public class Status_Map implements Serializable{
 	}
 	public Status_Map(HashMap<String, String> row){
 
-		this.setProperties(row);
+//		this.setProperties(row);
 	}
 	public Status_Map(int status_id, String status_description){
 		
@@ -40,19 +40,7 @@ public class Status_Map implements Serializable{
 	public void setStatus_description(String status_description) {
 		this.status_description = status_description;
 	}
-	private void setProperties(HashMap<String, String> row) {
 
-		this.setStatus_id( new Integer(row.get(Db.StatusMap.id)) );
-		this.setStatus_description( row.get(Db.StatusMap.description) );
-	}
-	
-	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> statusTable = new HashMap<String, String>();
-		statusTable.put(Db.StatusMap.id, new Integer(this.getStatus_id()).toString());
-		statusTable.put(Db.StatusMap.description, this.getStatus_description());
-		
-		return statusTable;
-	}
 	
 	
 

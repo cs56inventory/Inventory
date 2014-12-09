@@ -103,28 +103,28 @@ public class Store implements Serializable{
 	}
 		
 	private void setProperties(HashMap<String, String> row){
-		this.setStore_id(new Integer(row.get(DbMap.Store.store_id)));
-		this.setStore_name(row.get(DbMap.Store.name));
-		this.setStore_street_address(row.get(DbMap.Store.street_address));
-		this.setStore_city(row.get(DbMap.Store.city));
-		this.setStore_state(row.get(DbMap.Store.state));
-		this.setStore_zip_code(row.get(DbMap.Store.zip_code));
-		this.setStore_phone_number(row.get(DbMap.Store.phone_number));
-		this.setStore_status_id(new Integer(row.get(DbMap.Store.status_id)));
+		this.setStore_id(new Integer(row.get(Db.StoreMap.store_id)));
+		this.setStore_name(row.get(Db.StoreMap.name));
+		this.setStore_street_address(row.get(Db.StoreMap.street_address));
+		this.setStore_city(row.get(Db.StoreMap.city));
+		this.setStore_state(row.get(Db.StoreMap.state));
+		this.setStore_zip_code(row.get(Db.StoreMap.zip_code));
+		this.setStore_phone_number(row.get(Db.StoreMap.phone_number));
+		this.setStore_status_id(new Integer(row.get(Db.StoreMap.status_id)));
 	}
 	
 	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> stoeTable = new HashMap<String, String>();
-		stoeTable.put(DbMap.Store.store_id, new Integer(this.getStore_id()).toString());
-		stoeTable.put(DbMap.Store.name, this.getStore_name());
-		stoeTable.put(DbMap.Store.street_address, this.getStore_street_address());
-		stoeTable.put(DbMap.Store.city, this.getStore_city());
-		stoeTable.put(DbMap.Store.state, this.getStore_state());
-		stoeTable.put(DbMap.Store.zip_code, this.getStore_zip_code());
-		stoeTable.put(DbMap.Store.phone_number, this.getStore_name());
-		stoeTable.put(DbMap.Store.status_id, new Integer(this.getStore_status_id()).toString());
+		HashMap<String, String> storeTable = new HashMap<String, String>();
+		storeTable.put(Db.StoreMap.store_id, new Integer(this.getStore_id()).toString());
+		storeTable.put(Db.StoreMap.name, this.getStore_name());
+		storeTable.put(Db.StoreMap.street_address, this.getStore_street_address());
+		storeTable.put(Db.StoreMap.city, this.getStore_city());
+		storeTable.put(Db.StoreMap.state, this.getStore_state());
+		storeTable.put(Db.StoreMap.zip_code, this.getStore_zip_code());
+		storeTable.put(Db.StoreMap.phone_number, this.getStore_name());
+		storeTable.put(Db.StoreMap.status_id, new Integer(this.getStore_status_id()).toString());
 		
-		return stoeTable;
+		return storeTable;
 	}
 	
 }

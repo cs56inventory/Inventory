@@ -8,9 +8,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Properties;
+
+import org.apache.commons.lang.ArrayUtils;
+
 
 public class DAL {
 	// the database connection driver
@@ -18,14 +25,7 @@ public class DAL {
 		// database connection string
 		private String conn; 
 		private Connection connection;
-		private PreparedStatement preparedStatement;
-		private ResultSet resultSet;
-		private ResultSetMetaData rsmd;
-		private int numCols = 0;
-		private String[] columns;
-		private String query; 
-		private String[] parameters;
-		private ArrayList<LinkedHashMap<String, String>> results;
+		
 		// constructor
 		DAL() {
     	String filePathAndName =  "sqlserver.properties";
@@ -43,6 +43,7 @@ public class DAL {
 				// load driver
 				Class.forName(driver);
 				// connect
+				connection = DriverManager.getConnection(conn);
 			}
 		  catch (FileNotFoundException fnfEx)
 		  {
@@ -53,120 +54,124 @@ public class DAL {
 		     System.err.println(
 		        "IOException encountered while reading from " + filePathAndName);
 		  }
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
 			catch (Exception ex){
 				ex.printStackTrace();
 			}
 		}
 		
-		private void executeQry(){
+		void executeQry(Query q){
 
+			PreparedStatement preparedStatement = null;
+			ResultSet resultSet = null;
+			
 			try {
-				connection = DriverManager.getConnection(conn);
-				this.preparedStatement = connection.prepareStatement(this.query);
-				if(parameters.length!=0){
-					for(int i=0;i<parameters.length;i++){
-						this.preparedStatement.setString(i+1, parameters[i]);
+				preparedStatement = connection.prepareStatement(q.query);
+				if(q.parameters!=null && q.parameters.length!=0){
+					for(int i=0;i<q.parameters.length;i++){
+						preparedStatement.setString(i+1, q.parameters[i]);
 					}
 				}
 //				this.resultSet.getStatement()
-				System.out.println("Executing Query "+this.preparedStatement);
-				this.resultSet = this.preparedStatement.executeQuery();
-				System.out.println("Executed Query "+this.resultSet.getStatement());
-				this.rsmd = resultSet.getMetaData();
-				this.numCols = rsmd.getColumnCount();
-				System.out.println("Meta data "+this.rsmd);
-				System.out.println("Column count "+this.numCols);
-				this.setResults();
+				System.out.println("Executing Query "+preparedStatement);
+				resultSet = preparedStatement.executeQuery();
+//				System.out.println("Executed Query "+resultSet.getStatement());
+				ResultSetMetaData rsmd = resultSet.getMetaData();
+				int numCols = rsmd.getColumnCount();
+				this.setResults(resultSet, numCols, q);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			finally {
-		    try { this.resultSet.close(); } catch (Exception e) { /* ignored */ }
-		    try { this.preparedStatement.close(); } catch (Exception e) { /* ignored */ }
-		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
+		    try { resultSet.close(); } catch (Exception e) { /* ignored */ }
+		    try { preparedStatement.close(); } catch (Exception e) { /* ignored */ }
+//		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
 			}
 		}
-		
-		private void setResults() throws SQLException{
+	
+		int executeUpdate(Query q){
+			int results = 0;
+			PreparedStatement preparedStatement = null;
 			
-			this.results = new ArrayList<LinkedHashMap<String, String>>();
-		  try {
-		  	
-				while (this.resultSet.next()){
-					LinkedHashMap<String, String> row = new LinkedHashMap<String, String>(this.numCols);
-					
-				   for(int i=0; i<this.numCols; ++i){ 
-				  	 System.out.println(i+" Column name: "+this.columns[i]+" table name "+ rsmd.getTableName(i+1));
+			try {
+				
+//				connection = DriverManager.getConnection(conn);
+				preparedStatement = connection.prepareStatement(q.query);
+				if(q.parameters!=null && q.parameters.length!=0){
+					for(int i=0;i<q.parameters.length;i++){
+						preparedStatement.setString(i+1, q.parameters[i]);
+					}
+				}
+				System.out.println("Executing Query "+preparedStatement);
+				results = preparedStatement.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finally {
+		    try { preparedStatement.close(); } catch (Exception e) { /* ignored */ }
+//		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
+			}
+			return results;
+		}
+		
+		int executeInsert(Query q){
+			int results = 0;
+			PreparedStatement preparedStatement = null;
+			try {
+//				connection = DriverManager.getConnection(conn);
+				preparedStatement = connection.prepareStatement(q.query,Statement.RETURN_GENERATED_KEYS);
+				if(q.parameters.length!=0){
+					for(int i=0;i<q.parameters.length;i++){
+						preparedStatement.setString(i+1, q.parameters[i]);
+					}
+				}
+				System.out.println("Executing Query "+preparedStatement);
+				results = preparedStatement.executeUpdate();
+				ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+				if(generatedKeys.next()){
+					results=generatedKeys.getInt(1);
+				}
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finally {
+		    try { preparedStatement.close(); } catch (Exception e) { /* ignored */ }
+//		    try { this.connection.close(); } catch (Exception e) { /* ignored */ }
+			}
+			return results;
+		}
+		
+		private void setResults(ResultSet resultSet, int numCols, Query q ) throws SQLException{
 
-				  	 String key = this.columns[i];
-				  	 row.put(key,this.resultSet.getString(i+1));
+		  try {
+				while (resultSet.next()){
+					LinkedHashMap<String, String> row = new LinkedHashMap<String, String>(numCols);
+				   for(int i=0; i<numCols; ++i){ 
+				  	 String key = q.columns[i];
+				  	 row.put(key,resultSet.getString(i+1));
 				   }
-				   this.results.add(row);
+				   
+				   q.qryResults.add(row);
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-
-		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q){
-			this.query=q;
-			this.executeQry();
-			return this.results;
+		protected final int update(HashMap<String, String> valueMap, DbTable table){
+			Query q = new Query(this);
+			return q.update(valueMap, table);
 		}
 		
-		public ArrayList<LinkedHashMap<String, String>> getQryResults(String q, String[] parameters){
-			this.query="USE "+DbMap.db+" "+q;
-			this.parameters=parameters;
-			this.executeQry();
-			return this.results;
-		}
-		// get the ResultSetMetaData
-		public ResultSetMetaData getRsmd(){
-			return this.rsmd;
+		protected final int insert(HashMap<String, String> valueMap, DbTable table){
+			Query q = new Query(this);
+			return q.insert(valueMap, table);
 		}
 		
-		// get the ResultSet
-		public ResultSet getRs() {
-			return this.resultSet;
-		}
-		
-		// get the number of columns in the result set
-		public int getNumCols(){
-			return this.numCols;
-		}
-		
-		public String select(String[] columns){
-			return " SELECT "+columns(columns);
-		}
-		
-		public String columns(String[] columns){
-			this.columns = columns;
-			String clmns = columns[0];
-			for(int i=1;i<columns.length;i++){
-				clmns = clmns+','+columns[i];
-			}
-			return clmns;
-		}
-		
-		public String from(String table){
-			return " FROM "+table;
-		}
-		
-		public String innerJoin(String table){
-			return " INNER JOIN "+table;
-		}
-		
-		public String on(String column1, String column2){
-			return " ON "+column1+"="+column2;
-		}
-		
-		public String where(String[] columns){
-			String where = " WHERE "+columns[0]+"=?";
-			for(int i=1;i<columns.length;i++){
-				where = where+" AND "+columns[i]+"=?";
-			}	
-			return where;
-		}
 }

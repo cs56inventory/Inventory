@@ -1,5 +1,12 @@
+import java.io.Serializable;
+import java.util.HashMap;
 
-public class Product_Distributor_Store {
+
+public class Product_Distributor_Store implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2152322340818520013L;
 	private int product_upc;
 	private int distributor_id;
 	private int store_id;
@@ -13,7 +20,10 @@ public class Product_Distributor_Store {
 	public Product_Distributor_Store(){
 		
 	}
-	
+	public Product_Distributor_Store(HashMap<String, String> row){
+
+		this.setProperties(row);
+	}
 	public Product_Distributor_Store(int product_upc,int distributor_id,int store_id,float pds_product_unit_price,float pds_product_shipping_fee,float hours_to_deliver,int min_quantity,int max_quantity,int pds_status_id){
 		
 		this.product_upc = product_upc;
@@ -99,7 +109,33 @@ public class Product_Distributor_Store {
 		this.pds_status_id = pds_status_id;
 	}
 	
+	private void setProperties(HashMap<String, String> row) {
+
+		this.setProduct_upc( new Integer(row.get(Db.ProductDistributorStoreMap.product_upc)) );
+		this.setDistributor_id( new Integer(row.get(Db.ProductDistributorStoreMap.distributor_id)) );
+		this.setStore_id( new Integer(row.get(Db.ProductDistributorStoreMap.store_id)) );
+		this.setPds_product_unit_price( new Float(row.get(Db.ProductDistributorStoreMap.unit_price)) );
+		this.setPds_product_shipping_fee( new Float(row.get(Db.ProductDistributorStoreMap.shipping_fee)) );
+		this.setHours_to_deliver( new Float(row.get(Db.ProductDistributorStoreMap.hours_to_deliver)) );
+		this.setMin_quantity( new Integer(row.get(Db.ProductDistributorStoreMap.min_quantity)) );
+		this.setMax_quantity( new Integer(row.get(Db.ProductDistributorStoreMap.max_quantity)) );
+		this.setPds_status_id( new Integer(row.get(Db.ProductDistributorStoreMap.status_id)) );
+	}
 	
+	public HashMap<String, String> getDbMappedValues(){
+		HashMap<String, String> productDistributorStoreTable = new HashMap<String, String>();
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.product_upc, new Integer(this.getProduct_upc()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.distributor_id, new Integer(this.getDistributor_id()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.store_id, new Integer(this.getStore_id()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.unit_price, new Float(this.getPds_product_unit_price()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.shipping_fee, new Float(this.getPds_product_shipping_fee()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.hours_to_deliver, new Float(this.getHours_to_deliver()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.min_quantity, new Integer(this.getMin_quantity()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.max_quantity, new Integer(this.getMax_quantity()).toString());
+		productDistributorStoreTable.put(Db.ProductDistributorStoreMap.status_id, new Integer(this.getPds_status_id()).toString());
+		
+		return productDistributorStoreTable;
+	}
 	
 
 }

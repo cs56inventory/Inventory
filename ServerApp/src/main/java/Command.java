@@ -2,5 +2,5 @@
 interface Command {
 
 	void runMethod();
-	void runMethod(Object o);
+	void runMethod( Object o);
 }

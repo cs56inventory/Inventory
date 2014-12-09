@@ -18,7 +18,7 @@ public class Distributor implements Serializable{
 	
 	public Distributor(HashMap<String, String> row){
 
-		this.setProperties(row);
+//		this.setProperties(row);
 	}
 	
 	public Distributor(int distributor_id, String distributor_name, int distributor_status_id){
@@ -47,18 +47,4 @@ public class Distributor implements Serializable{
 		this.distributor_status_id = distributor_status_id;
 	}
 
-	private void setProperties(HashMap<String, String> row){
-		this.setDistributor_id(new Integer(row.get(Db.DistributorMap.id)));
-		this.setDistributor_name(row.get(Db.DistributorMap.name));
-		this.setDistributor_status_id(new Integer(row.get(Db.DistributorMap.status_id)));
-	}
-	
-	public HashMap<String, String> getDbMappedValues(){
-		HashMap<String, String> distributorTable = new HashMap<String, String>();
-		distributorTable.put(Db.DistributorMap.id, new Integer(this.getDistributor_id()).toString());
-		distributorTable.put(Db.DistributorMap.name, this.getDistributor_name());
-		distributorTable.put(Db.DistributorMap.status_id, new Integer(this.getDistributor_status_id()).toString());
-		
-		return distributorTable;
-	}
 }
