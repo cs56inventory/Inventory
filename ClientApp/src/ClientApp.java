@@ -31,6 +31,7 @@ public class ClientApp {
 			}
 
 			URI serverUri = new URI("ws://localhost:8080/");
+			//URI serverUri = new URI("ws://107.185.0.29:8080/");
 			ClientUpgradeRequest request = new ClientUpgradeRequest();
 			client.connect(socket, serverUri, request);
 			System.out.printf("connecting to: %s%n", serverUri);
